@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com Dominó - IA Assistente</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --background-color: #f5f7fa;
+            --text-color: #333;
+            --bot-message: #e3f2fd;
+            --user-message: #e8f5e9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .btn-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filtro-data {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filtro-data label {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .filtro-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .btn-filtrar, .btn-limpar {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .btn-filtrar {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-filtrar:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-limpar {
+            background-color: #f0f0f0;
+            color: #555;
+        }
+
+        .btn-limpar:hover {
+            background-color: #e0e0e0;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #555;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .card-label {
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .tabela-contratos h3 {
+            margin: 20px 0 15px;
+            color: #444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-badge.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-message);
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bot-message);
+            border-bottom-left-radius: 5px;
+        }
+
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            background: white;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #user-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            height: 44px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--bot-message);
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 5px;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #666;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .input-area {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-nav">
+                <a href="/dashboard" class="btn-dashboard">
+                    📊 Dashboard Avançado
+                </a>
+            </div>
+            <h1>Mobius</h1>
+            <p>Seu assistente virtual para gerenciamento de contratos</p>
+        </header>
+        
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h2>Visão Geral de Contratos</h2>
+                <div class="filtros">
+                    <div class="filtro-data">
+                        <label for="data-inicio">Data Início:</label>
+                        <input type="date" id="data-inicio" class="filtro-input">
+                    </div>
+                    <div class="filtro-data">
+                        <label for="data-fim">Data Fim:</label>
+                        <input type="date" id="data-fim" class="filtro-input">
+                    </div>
+                    <button id="aplicar-filtro" class="btn-filtrar">Aplicar Filtro</button>
+                    <button id="limpar-filtro" class="btn-limpar">Limpar Filtro</button>
+                </div>
+            </div>
+            
+            <!-- Seção de Gráficos -->
+            <div class="graficos-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <div class="grafico-card">
+                    <h3>Status dos Contratos</h3>
+                    <canvas id="graficoStatus"></canvas>
+                </div>
+                <div class="grafico-card">
+                    <h3>Vencimentos por Mês</h3>
+                    <canvas id="graficoVencimentos"></canvas>
+                </div>
+            </div>
+            
+            <div class="cards-container">
+                <div class="card">
+                    <h3>Total de Contratos</h3>
+                    <div class="card-value" id="total-contratos">{{ resumo.total_contratos }}</div>
+                    <div class="card-label">Contratos ativos</div>
+                </div>
+                <div class="card">
+                    <h3>Vencendo Este Mês</h3>
+                    <div class="card-value" id="vencendo-este-mes">{{ resumo.vencendo_este_mes }}</div>
+                    <div class="card-label">Contratos</div>
+                </div>
+                <div class="card">
+                    <h3>Próximo Mês</h3>
+                    <div class="card-value" id="vencendo-proximo-mes">{{ resumo.vencendo_proximo_mes }}</div>
+                    <div class="card-label">Contratos a vencer</div>
+                </div>
+            </div>
+
+            <div class="tabela-contratos">
+                <h3>Próximos Vencimentos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Valor</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-contratos-body">
+                        {% for contrato in resumo.proximos_vencimentos %}
+                        <tr>
+                            <td>{{ contrato.cliente }}</td>
+                            <td>{{ contrato.valor }}</td>
+                            <td>{{ contrato.data_vencimento }}</td>
+                            <td>
+                                <span class="status-badge {{ 'warning' if contrato.status == 'Próximo do vencimento' else 'success' }}">
+                                    {{ contrato.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="chat-messages">
+                <!-- Mensagens serão adicionadas aqui dinamicamente -->
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+            
+            <div class="input-area">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Digite sua mensagem..." 
+                    autocomplete="off"
+                >
+                <button id="send-button">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da interface
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const totalContratos = document.getElementById('total-contratos');
+        const vencendoEsteMes = document.getElementById('vencendo-este-mes');
+        const vencendoProximoMes = document.getElementById('vencendo-proximo-mes');
+        const tabelaContratosBody = document.getElementById('tabela-contratos-body');
+        
+        // Variáveis para os gráficos e filtros
+        let graficoStatus, graficoVencimentos;
+        let contratosData = []; // Armazenará todos os contratos carregados
+
+        // Função para formatar números com separadores de milhar
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        // Função para converter data do formato YYYY-MM-DD para Date
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        // Função para formatar data para o eixo X do gráfico
+        function formatarDataParaGrafico(dataStr) {
+            if (!dataStr) return '';
+            // Converte de DD/MM/YYYY para Date
+            const [dia, mes, ano] = dataStr.split('/').map(Number);
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            return `${dia} ${meses[mes - 1]}`;
+        }
+        
+        // Função para formatar data para input date (YYYY-MM-DD)
+        function formatarDataParaInput(dateStr) {
+            if (!dateStr) return '';
+            if (dateStr.includes('-')) return dateStr; // Já está no formato correto
+            const [dia, mes, ano] = dateStr.split('/');
+            return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+        }
+
+        // Função para inicializar os gráficos
+        function inicializarGraficos() {
+            const ctxStatus = document.getElementById('graficoStatus').getContext('2d');
+            const ctxVencimentos = document.getElementById('graficoVencimentos').getContext('2d');
+            
+            // Garante que os elementos do gráfico existam
+            if (!ctxStatus || !ctxVencimentos) {
+                console.error('Elementos do gráfico não encontrados');
+                return;
+            }
+            
+            // Destruir gráficos existentes, se houver
+            if (graficoStatus) graficoStatus.destroy();
+            if (graficoVencimentos) graficoVencimentos.destroy();
+            
+            // Gráfico de Status dos Contratos (Pizza)
+            graficoStatus = new Chart(ctxStatus, {
+                type: 'pie',
+                data: {
+                    labels: ['A vencer', 'Próximo do vencimento'],
+                    datasets: [{
+                        data: [0, 0], // Será atualizado com os dados reais
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de Vencimentos (Linha)
+            graficoVencimentos = new Chart(ctxVencimentos, {
+                type: 'line',
+                data: {
+                    labels: [], // Será preenchido com as datas
+                    datasets: [{
+                        label: 'Valor dos Contratos',
+                        data: [], // Será preenchido com os valores
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Função para aplicar filtros
+        function aplicarFiltros() {
+            const dataInicio = document.getElementById('data-inicio').value;
+            const dataFim = document.getElementById('data-fim').value;
+            
+            let contratosFiltrados = [...contratosData];
+            
+            // Aplica filtro de data se houver
+            if (dataInicio || dataFim) {
+                contratosFiltrados = contratosFiltrados.filter(contrato => {
+                    const dataVencimento = contrato.data_vencimento;
+                    const [dia, mes, ano] = dataVencimento.split('/').map(Number);
+                    const dataContrato = new Date(ano, mes - 1, dia);
+                    
+                    if (dataInicio && dataFim) {
+                        const inicio = parseDate(dataInicio);
+                        const fim = parseDate(dataFim);
+                        return dataContrato >= inicio && dataContrato <= fim;
+                    } else if (dataInicio) {
+                        const inicio = parseDate(dataInicio);
+                        return dataContrato >= inicio;
+                    } else if (dataFim) {
+                        const fim = parseDate(dataFim);
+                        return dataContrato <= fim;
+                    }
+                    return true;
+                });
+            }
+            
+            // Atualiza a interface com os dados filtrados
+            atualizarInterface(contratosFiltrados);
+        }
+        
+        // Função para atualizar a interface com os dados fornecidos
+        function atualizarInterface(contratos) {
+            // Atualiza os cards
+            const total = contratos.length;
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth() + 1;
+            const anoAtual = hoje.getFullYear();
+            const proximoMes = mesAtual === 12 ? 1 : mesAtual + 1;
+            const anoProximoMes = mesAtual === 12 ? anoAtual + 1 : anoAtual;
+            
+            const vencendoEsteMes = contratos.filter(c => {
+                const [dia, mes, ano] = c.data_vencimento.split('/').map(Number);
+                return mes === mesAtual && ano === anoAtual;
+            }).length;
+            
+            const vencendoProximoMes = contratos.filter(c => {
+                const [dia, mes, ano] = c.data_vencimento.split('/').map(Number);
+                return mes === proximoMes && ano === (mes === 12 ? anoAtual + 1 : anoAtual);
+            }).length;
+            
+            // Atualiza os cards
+            totalContratos.textContent = formatNumber(total);
+            document.getElementById('vencendo-este-mes').textContent = formatNumber(vencendoEsteMes);
+            document.getElementById('vencendo-proximo-mes').textContent = formatNumber(vencendoProximoMes);
+            
+            // Atualiza a tabela
+            atualizarTabela(contratos);
+            
+            // Atualiza os gráficos
+            atualizarGraficos(contratos);
+        }
+        
+        // Função para atualizar a tabela
+        function atualizarTabela(contratos) {
+            tabelaContratosBody.innerHTML = '';
+            
+            // Ordena por data de vencimento
+            const contratosOrdenados = [...contratos].sort((a, b) => {
+                const [diaA, mesA, anoA] = a.data_vencimento.split('/').map(Number);
+                const [diaB, mesB, anoB] = b.data_vencimento.split('/').map(Number);
+                return new Date(anoA, mesA - 1, diaA) - new Date(anoB, mesB - 1, diaB);
+            });
+            
+            // Limita aos 10 primeiros para a tabela
+            const contratosParaTabela = contratosOrdenados.slice(0, 10);
+            
+            contratosParaTabela.forEach(contrato => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${contrato.cliente}</td>
+                    <td>${contrato.valor}</td>
+                    <td>${contrato.data_vencimento}</td>
+                    <td>
+                        <span class="status-badge ${contrato.status === 'Próximo do vencimento' ? 'warning' : 'success'}">
+                            ${contrato.status}
+                        </span>
+                    </td>
+                `;
+                tabelaContratosBody.appendChild(tr);
+            });
+        }
+        
+        // Função para atualizar os gráficos
+        function atualizarGraficos(contratos) {
+            // Atualiza o gráfico de status
+            const aVencer = contratos.filter(c => c.status === 'A vencer').length;
+            const proximoVencimento = contratos.filter(c => c.status === 'Próximo do vencimento').length;
+            
+            if (graficoStatus) {
+                graficoStatus.data.datasets[0].data = [aVencer, proximoVencimento];
+                graficoStatus.update();
+            }
+            
+            // Prepara dados para o gráfico de vencimentos
+            const vencimentosPorData = {};
+            
+            contratos.forEach(contrato => {
+                if (!vencimentosPorData[contrato.data_vencimento]) {
+                    vencimentosPorData[contrato.data_vencimento] = 0;
+                }
+                const valorNumerico = parseFloat(contrato.valor.replace('R$ ', '').replace('.', '').replace(',', '.'));
+                vencimentosPorData[contrato.data_vencimento] += valorNumerico;
+            });
+            
+            // Ordena as datas
+            const datasOrdenadas = Object.keys(vencimentosPorData).sort((a, b) => {
+                const [diaA, mesA, anoA] = a.split('/').map(Number);
+                const [diaB, mesB, anoB] = b.split('/').map(Number);
+                return new Date(anoA, mesA - 1, diaA) - new Date(anoB, mesB - 1, diaB);
+            });
+            
+            const valoresOrdenados = datasOrdenadas.map(data => vencimentosPorData[data]);
+            
+            // Atualiza o gráfico de vencimentos
+            if (graficoVencimentos) {
+                graficoVencimentos.data.labels = datasOrdenadas.map(formatarDataParaGrafico);
+                graficoVencimentos.data.datasets[0].data = valoresOrdenados;
+                graficoVencimentos.update();
+            }
+        }
+
+        // Função para carregar os dados dos contratos via API
+        async function carregarDadosContratos() {
+            try {
+                const response = await fetch('/api/contratos');
+                const data = await response.json();
+                
+                // Armazena os dados completos para filtragem
+                contratosData = data.contratos || [];
+                
+                // Define as datas padrão (últimos 30 dias)
+                const hoje = new Date();
+                const trintaDiasAtras = new Date();
+                trintaDiasAtras.setDate(hoje.getDate() - 30);
+                
+                // Formata as datas para o input (formato YYYY-MM-DD)
+                document.getElementById('data-inicio').value = trintaDiasAtras.toISOString().split('T')[0];
+                document.getElementById('data-fim').value = hoje.toISOString().split('T')[0];
+                
+                // Aplica os filtros iniciais
+                aplicarFiltros();
+                let aVencer = 0;
+                let proximoVencimento = 0;
+                const vencimentosPorData = {};
+                
+                data.contratos.forEach(contrato => {
+                    // Atualiza contagem para o gráfico de status
+                    if (contrato.status === 'A vencer') {
+                        aVencer++;
+                    } else {
+                        proximoVencimento++;
+                    }
+                    
+                    // Prepara dados para o gráfico de vencimentos
+                    if (!vencimentosPorData[contrato.data_vencimento]) {
+                        vencimentosPorData[contrato.data_vencimento] = 0;
+                    }
+                    // Remove 'R$ ' e substitui vírgula por ponto para converter para número
+                    const valorNumerico = parseFloat(contrato.valor.replace('R$ ', '').replace('.', '').replace(',', '.'));
+                    vencimentosPorData[contrato.data_vencimento] += valorNumerico;
+                    
+                    // Adiciona à tabela apenas os próximos vencimentos
+                    if (data.resumo.proximos_vencimentos.some(v => v.id === contrato.id)) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${contrato.cliente}</td>
+                            <td>${contrato.valor}</td>
+                            <td>${contrato.data_vencimento}</td>
+                            <td>
+                                <span class="status-badge ${contrato.status === 'Próximo do vencimento' ? 'warning' : 'success'}">
+                                    ${contrato.status}
+                                </span>
+                            </td>
+                        `;
+                        tabelaContratosBody.appendChild(tr);
+                    }
+                });
+                
+                // Atualiza o gráfico de status
+                if (graficoStatus) {
+                    graficoStatus.data.datasets[0].data = [aVencer, proximoVencimento];
+                    graficoStatus.update();
+                }
+                
+                // Prepara dados para o gráfico de vencimentos
+                const datasOrdenadas = Object.keys(vencimentosPorData).sort((a, b) => {
+                    const [diaA, mesA, anoA] = a.split('/').map(Number);
+                    const [diaB, mesB, anoB] = b.split('/').map(Number);
+                    return new Date(anoA, mesA - 1, diaA) - new Date(anoB, mesB - 1, diaB);
+                });
+                
+                const valoresOrdenados = datasOrdenadas.map(data => vencimentosPorData[data]);
+                
+                // Atualiza o gráfico de vencimentos
+                if (graficoVencimentos) {
+                    graficoVencimentos.data.labels = datasOrdenadas.map(formatarDataParaGrafico);
+                    graficoVencimentos.data.datasets[0].data = valoresOrdenados;
+                    graficoVencimentos.update();
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados dos contratos:', error);
+            }
+        }
+        
+        // Função para adicionar mensagem ao chat
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Função para mostrar/ocultar indicador de digitação
+        function showTypingIndicator(show) {
+            typingIndicator.style.display = show ? 'flex' : 'none';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Função para enviar mensagem
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Adiciona mensagem do usuário
+            addMessage(message, true);
+            userInput.value = '';
+            sendButton.disabled = true;
+
+            // Mostra indicador de digitação
+            showTypingIndicator(true);
+
+            try {
+                // Envia mensagem para o servidor
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ mensagem: message })
+                });
+
+                const data = await response.json();
+                
+                if (data.erro) {
+                    throw new Error(data.erro);
+                }
+
+                // Adiciona resposta do bot
+                addMessage(data.resposta);
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                addMessage('Desculpe, ocorreu um erro ao processar sua mensagem.');
+            } finally {
+                // Esconde indicador de digitação
+                showTypingIndicator(false);
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // Event Listeners para os filtros
+        document.getElementById('aplicar-filtro').addEventListener('click', aplicarFiltros);
+        document.getElementById('limpar-filtro').addEventListener('click', () => {
+            document.getElementById('data-inicio').value = '';
+            document.getElementById('data-fim').value = '';
+            aplicarFiltros();
+        });
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa os gráficos
+            try {
+                inicializarGraficos();
+                // Carrega os dados dos contratos quando a página carregar
+                carregarDadosContratos();
+            } catch (error) {
+                console.error('Erro ao inicializar gráficos:', error);
+            }
+            
+            // Foca no input de mensagem
+            userInput.focus();
+            
+            // Mensagem de boas-vindas
+            setTimeout(() => {
+                addMessage('Olá! Sou o Dominó, seu assistente virtual. Como posso te ajudar hoje?');
+            }, 500);
+            
+            // Atualiza os dados a cada 5 minutos
+            setInterval(carregarDadosContratos, 5 * 60 * 1000);
+        });
+
+        // Enviar mensagem ao clicar no botão
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Enviar mensagem ao pressionar Enter
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

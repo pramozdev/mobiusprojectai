@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Avançado - Gestão de Contratos</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>📊 Dashboard Avançado</h1>
+                <p class="last-update">Última atualização: <span id="lastUpdate">--</span></p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="atualizarDados()">🔄 Atualizar</button>
+                <button class="btn btn-primary" onclick="window.location.href='/'">← Voltar</button>
+            </div>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Carregando dados do dashboard...</p>
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <!-- Métricas Principais -->
+            <div class="metrics-grid" id="metricas"></div>
+
+            <!-- Alertas Inteligentes -->
+            <h2 class="section-header">🚨 Alertas Inteligentes</h2>
+            <div id="alertasIA" class="ai-section"></div>
+
+            <!-- Score de Risco e Insights -->
+            <div class="charts-grid">
+                <div id="scoreRisco"></div>
+                <div id="insightsIA"></div>
+            </div>
+
+            <!-- Previsões -->
+            <h2 class="section-header">🔮 Previsões e Tendências</h2>
+            <div id="previsoesIA"></div>
+
+            <!-- Interface de Perguntas -->
+            <h2 class="section-header">💬 Pergunte à IA sobre seus Dados</h2>
+            <div class="qa-interface">
+                <div class="qa-input-group">
+                    <input 
+                        type="text" 
+                        id="perguntaIA" 
+                        class="qa-input" 
+                        placeholder="Ex: Qual setor tem maior inadimplência?"
+                        onkeypress="if(event.key==='Enter') perguntarDados()"
+                    >
+                    <button id="btnPerguntar" class="btn btn-primary" onclick="perguntarDados()">
+                        Perguntar
+                    </button>
+                </div>
+                <div id="respostasIA"></div>
+            </div>
+
+            <!-- Indicadores de Mercado -->
+            <h2 class="section-header">📈 Indicadores de Mercado</h2>
+            <div class="market-indicators" id="indicadores"></div>
+
+            <!-- Gráficos -->
+            <h2 class="section-header">📊 Análises e Gráficos</h2>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Distribuição por Status</div>
+                            <div class="chart-subtitle">Quantidade de contratos</div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="btn-analyze" onclick="analisarGraficoStatus()">
+                                🤖 Analisar com IA
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartStatus"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Top 5 Clientes</div>
+                            <div class="chart-subtitle">Por valor de contrato</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartClientes"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Valor por Setor</div>
+                            <div class="chart-subtitle">Distribuição setorial</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartSetor"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Valor por Região</div>
+                            <div class="chart-subtitle">Distribuição geográfica</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartRegiao"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <div>
+                            <div class="chart-title">Timeline de Vencimentos</div>
+                            <div class="chart-subtitle">Próximos 12 meses</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartTimeline"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparação por Setor -->
+            <h2 class="section-header">🏢 Comparação por Setor</h2>
+            <div class="table-container">
+                <table id="tabelaSetores">
+                    <thead>
+                        <tr>
+                            <th>Setor</th>
+                            <th>Crescimento</th>
+                            <th>Inadimplência</th>
+                            <th>Taxa de Renovação</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Análise -->
+    <div id="modalAnalise" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="document.getElementById('modalAnalise').style.display='none'">&times;</span>
+            <div id="analiseConteudo"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Função auxiliar para analisar gráfico de status
+        function analisarGraficoStatus() {
+            if (DashboardState.currentData && DashboardState.currentData.distribuicao_status) {
+                analisarGrafico('Distribuição por Status', DashboardState.currentData.distribuicao_status);
+            }
+        }
+    </script>
+</body>
+</html>
