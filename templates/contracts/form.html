@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}{% if contract %}Editar{% else %}Novo{% endif %} Contrato{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.contracts') }}">Contratos</a></li>
+                    <li class="breadcrumb-item active">{% if contract %}Editar{% else %}Novo{% endif %} Contrato</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">{% if contract %}Editar Contrato{% else %}Novo Contrato{% endif %}</h1>
+            <p class="text-muted mb-0">
+                {% if contract %}
+                Modifique as informações do contrato existente
+                {% else %}
+                Preencha as informações para criar um novo contrato
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.contracts') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST">
+                <!-- Informações Básicas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">📋 Informações Básicas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Título do Contrato *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   value="{{ contract.title if contract else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ contract.description if contract else '' }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="client_id" class="form-label">Cliente *</label>
+                                    <select class="form-select" id="client_id" name="client_id" required>
+                                        <option value="">Selecione um cliente</option>
+                                        {% for client in clients %}
+                                        <option value="{{ client.id }}" 
+                                                {% if contract and contract.client_id == client.id %}selected{% endif %}>
+                                            {{ client.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contract_number" class="form-label">Número do Contrato</label>
+                                    <input type="text" class="form-control" id="contract_number" name="contract_number" 
+                                           value="{{ contract.contract_number if contract else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contract_type" class="form-label">Tipo de Contrato</label>
+                                    <select class="form-select" id="contract_type" name="contract_type">
+                                        <option value="serviço" {% if contract and contract.contract_type == 'serviço' %}selected{% endif %}>Serviço</option>
+                                        <option value="consultoria" {% if contract and contract.contract_type == 'consultoria' %}selected{% endif %}>Consultoria</option>
+                                        <option value="produto" {% if contract and contract.contract_type == 'produto' %}selected{% endif %}>Produto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="rascunho" {% if contract and contract.status == 'rascunho' %}selected{% endif %}>Rascunho</option>
+                                        <option value="ativo" {% if contract and contract.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                                        <option value="suspenso" {% if contract and contract.status == 'suspenso' %}selected{% endif %}>Suspenso</option>
+                                        <option value="concluído" {% if contract and contract.status == 'concluído' %}selected{% endif %}>Concluído</option>
+                                        <option value="cancelado" {% if contract and contract.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valores e Datas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">💰 Valores e Datas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="value" class="form-label">Valor *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <input type="number" class="form-control" id="value" name="value" 
+                                               value="{{ contract.value if contract else '' }}" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">Moeda</label>
+                                    <select class="form-select" id="currency" name="currency">
+                                        <option value="BRL" {% if not contract or contract.currency == 'BRL' %}selected{% endif %}>BRL - Real Brasileiro</option>
+                                        <option value="USD" {% if contract and contract.currency == 'USD' %}selected{% endif %}>USD - Dólar Americano</option>
+                                        <option value="EUR" {% if contract and contract.currency == 'EUR' %}selected{% endif %}>EUR - Euro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="start_date" class="form-label">Data de Início *</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" 
+                                           value="{{ contract.start_date.strftime('%Y-%m-%d') if contract and contract.start_date else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="end_date" class="form-label">Data de Término *</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" 
+                                           value="{{ contract.end_date.strftime('%Y-%m-%d') if contract and contract.end_date else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="signature_date" class="form-label">Data de Assinatura</label>
+                                    <input type="date" class="form-control" id="signature_date" name="signature_date" 
+                                           value="{{ contract.signature_date.strftime('%Y-%m-%d') if contract and contract.signature_date else '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagamento -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">💳 Pagamento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="payment_method" class="form-label">Método de Pagamento</label>
+                                    <select class="form-select" id="payment_method" name="payment_method">
+                                        <option value="">Selecione</option>
+                                        <option value="transferência" {% if contract and contract.payment_method == 'transferência' %}selected{% endif %}>Transferência Bancária</option>
+                                        <option value="boleto" {% if contract and contract.payment_method == 'boleto' %}selected{% endif %}>Boleto</option>
+                                        <option value="cartão" {% if contract and contract.payment_method == 'cartão' %}selected{% endif %}>Cartão de Crédito</option>
+                                        <option value="pix" {% if contract and contract.payment_method == 'pix' %}selected{% endif %}>Pix</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="payment_frequency" class="form-label">Frequência de Pagamento</label>
+                                    <select class="form-select" id="payment_frequency" name="payment_frequency">
+                                        <option value="">Selecione</option>
+                                        <option value="mensal" {% if contract and contract.payment_frequency == 'mensal' %}selected{% endif %}>Mensal</option>
+                                        <option value="trimestral" {% if contract and contract.payment_frequency == 'trimestral' %}selected{% endif %}>Trimestral</option>
+                                        <option value="semestral" {% if contract and contract.payment_frequency == 'semestral' %}selected{% endif %}>Semestral</option>
+                                        <option value="anual" {% if contract and contract.payment_frequency == 'anual' %}selected{% endif %}>Anual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renovação Automática -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="auto_renew" name="auto_renew" 
+                                               {% if contract and contract.auto_renew %}checked{% endif %}>
+                                        <label class="form-check-label" for="auto_renew">
+                                            Renovação Automática
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="renewal_days" class="form-label">Dias para Aviso de Renovação</label>
+                                    <input type="number" class="form-control" id="renewal_days" name="renewal_days" 
+                                           value="{{ contract.renewal_days if contract else 30 }}" min="1" max="365">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">📝 Observações</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notas Adicionais</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4">{{ contract.notes if contract else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('web.contracts') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if contract %}Salvar Alterações{% else %}Criar Contrato{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Ajuda -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">💡 Dicas</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Preencha todos os campos obrigatórios (*)
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            A data de término deve ser posterior à de início
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Use descrições claras para facilitar consultas
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Ative renovação automática para contratos longos
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Status Atual -->
+            {% if contract %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">📊 Status Atual</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Status</small><br>
+                        {% if contract.status == 'ativo' %}
+                        <span class="badge bg-success">Ativo</span>
+                        {% elif contract.status == 'rascunho' %}
+                        <span class="badge bg-secondary">Rascunho</span>
+                        {% elif contract.status == 'suspenso' %}
+                        <span class="badge bg-warning">Suspenso</span>
+                        {% elif contract.status == 'concluído' %}
+                        <span class="badge bg-info">Concluído</span>
+                        {% elif contract.status == 'cancelado' %}
+                        <span class="badge bg-danger">Cancelado</span>
+                        {% endif %}
+                    </div>
+                    {% if contract.end_date %}
+                    <div class="mb-3">
+                        <small class="text-muted">Tempo Restante</small><br>
+                        {% set dias_restantes = (contract.end_date - now().date()).days %}
+                        {% if dias_restantes > 0 %}
+                        <span class="text-success">{{ dias_restantes }} dias</span>
+                        {% else %}
+                        <span class="text-danger">Vencido</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <small class="text-muted">Valor</small><br>
+                        <strong class="text-success">R$ {{ "{:,.2f}".format(contract.value) }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação de datas
+document.getElementById('end_date').addEventListener('change', function() {
+    var startDate = new Date(document.getElementById('start_date').value);
+    var endDate = new Date(this.value);
+    
+    if (endDate <= startDate) {
+        this.setCustomValidity('A data de término deve ser posterior à data de início');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Formatar valor monetário
+document.getElementById('value').addEventListener('blur', function() {
+    var value = parseFloat(this.value);
+    if (!isNaN(value)) {
+        this.value = value.toFixed(2);
+    }
+});
+</script>
+{% endblock %}

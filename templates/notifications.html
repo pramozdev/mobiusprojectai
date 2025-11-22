@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Notificações - Sistema de Gestão{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">🔔 Notificações</h1>
+            <p class="text-muted mb-0">Visualize e gerencie suas notificações</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" id="markAllRead">
+                <i class="fas fa-check-double me-2"></i>Marcar Todas como Lidas
+            </button>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ notifications | selectattr('is_read', 'equalto', False) | list | length }}</h4>
+                            <small>Não Lidas</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-envelope fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ notifications | selectattr('is_read') | list | length }}</h4>
+                            <small>Lidas</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-envelope-open fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ notifications | length }}</h4>
+                            <small>Total</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bell fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ notifications | selectattr('priority', 'equalto', 'high') | list | length }}</h4>
+                            <small>Alta Prioridade</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Todas</option>
+                        <option value="unread" {% if request.args.get('status') == 'unread' %}selected{% endif %}>Não Lidas</option>
+                        <option value="read" {% if request.args.get('status') == 'read' %}selected{% endif %}>Lidas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="priority" class="form-label">Prioridade</label>
+                    <select class="form-select" id="priority" name="priority">
+                        <option value="">Todas</option>
+                        <option value="high" {% if request.args.get('priority') == 'high' %}selected{% endif %}>Alta</option>
+                        <option value="medium" {% if request.args.get('priority') == 'medium' %}selected{% endif %}>Média</option>
+                        <option value="low" {% if request.args.get('priority') == 'low' %}selected{% endif %}>Baixa</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Tipo</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">Todos</option>
+                        <option value="contract" {% if request.args.get('type') == 'contract' %}selected{% endif %}>Contratos</option>
+                        <option value="client" {% if request.args.get('type') == 'client' %}selected{% endif %}>Clientes</option>
+                        <option value="system" {% if request.args.get('type') == 'system' %}selected{% endif %}>Sistema</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>Filtrar
+                        </button>
+                        <a href="{{ url_for('web.notifications') }}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times me-1"></i>Limpar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Notificações -->
+    {% if notifications %}
+    <div class="card">
+        <div class="card-body">
+            <div class="list-group">
+                {% for notification in notifications %}
+                <div class="list-group-item {% if not notification.is_read %}list-group-item-info{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                {% if notification.priority == 'high' %}
+                                <span class="badge bg-danger me-2">Alta</span>
+                                {% elif notification.priority == 'medium' %}
+                                <span class="badge bg-warning me-2">Média</span>
+                                {% else %}
+                                <span class="badge bg-secondary me-2">Baixa</span>
+                                {% endif %}
+                                
+                                {% if notification.type == 'contract' %}
+                                <i class="fas fa-file-contract me-2 text-primary"></i>
+                                {% elif notification.type == 'client' %}
+                                <i class="fas fa-building me-2 text-info"></i>
+                                {% else %}
+                                <i class="fas fa-cog me-2 text-secondary"></i>
+                                {% endif %}
+                                
+                                <h6 class="mb-0">{{ notification.title }}</h6>
+                            </div>
+                            
+                            <p class="mb-2">{{ notification.message }}</p>
+                            
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ notification.created_at.strftime('%d/%m/%Y %H:%M') if notification.created_at else 'N/A' }}
+                                
+                                {% if notification.related_id %}
+                                <a href="{{ get_notification_link(notification) }}" class="ms-3">
+                                    <i class="fas fa-external-link-alt me-1"></i>Ver Detalhes
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="ms-3">
+                            {% if not notification.is_read %}
+                            <button class="btn btn-sm btn-outline-primary" onclick="markAsRead('{{ notification.id }}')">
+                                <i class="fas fa-check me-1"></i>Marcar Lida
+                            </button>
+                            {% else %}
+                            <span class="text-muted small">
+                                <i class="fas fa-check-circle me-1"></i>Lida
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Nenhuma notificação -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-bell-slash fa-4x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Nenhuma notificação</h3>
+        <p class="text-muted">
+            {% if request.args.get('status') or request.args.get('priority') or request.args.get('type') %}
+            Tente ajustar os filtros ou 
+            <a href="{{ url_for('web.notifications') }}">ver todas as notificações</a>.
+            {% else %}
+            Você não tem notificações no momento.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Marcar como lida
+function markAsRead(notificationId) {
+    fetch(`/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Erro ao marcar notificação como lida');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro ao marcar notificação como lida');
+    });
+}
+
+// Marcar todas como lidas
+document.getElementById('markAllRead').addEventListener('click', function() {
+    const unreadNotifications = {{ notifications | selectattr('is_read', 'equalto', False) | list | length }};
+    
+    if (unreadNotifications === 0) {
+        alert('Todas as notificações já estão lidas');
+        return;
+    }
+    
+    if (confirm('Marcar ' + unreadNotifications + ' notificação(ões) como lidas?')) {
+        // Simulação - em produção faria chamada API
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+        
+        setTimeout(function() {
+            location.reload();
+        }, 1500);
+    }
+});
+
+// Auto-refresh notificações não lidas
+setInterval(function() {
+    const unreadCount = {{ notifications | selectattr('is_read', 'equalto', False) | list | length }};
+    const badge = document.querySelector('.notification-badge');
+    
+    if (badge && unreadCount === 0) {
+        badge.style.display = 'none';
+    } else if (badge && unreadCount > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = unreadCount;
+    }
+}, 30000); // Verifica a cada 30 segundos
+</script>
+{% endblock %}

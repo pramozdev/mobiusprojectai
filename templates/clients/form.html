@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}{% if client %}Editar{% else %}Novo{% endif %} Cliente{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.clients') }}">Clientes</a></li>
+                    <li class="breadcrumb-item active">{% if client %}Editar{% else %}Novo{% endif %} Cliente</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">{% if client %}Editar Cliente{% else %}Novo Cliente{% endif %}</h1>
+            <p class="text-muted mb-0">
+                {% if client %}
+                Modifique as informações do cliente existente
+                {% else %}
+                Preencha as informações para criar um novo cliente
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.clients') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST">
+                <!-- Informações Básicas -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">🏢 Informações Básicas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome/Razão Social *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ client.name if client else '' }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ client.email if client else '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ client.phone if client else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="document" class="form-label">CPF/CNPJ</label>
+                            <input type="text" class="form-control" id="document" name="document" 
+                                   value="{{ client.document if client else '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">📍 Endereço</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Endereço</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   value="{{ client.address if client else '' }}">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">Cidade</label>
+                                    <input type="text" class="form-control" id="city" name="city" 
+                                           value="{{ client.city if client else '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="state" class="form-label">Estado</label>
+                                    <input type="text" class="form-control" id="state" name="state" 
+                                           value="{{ client.state if client else '' }}" maxlength="2">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="postal_code" class="form-label">CEP</label>
+                                    <input type="text" class="form-control" id="postal_code" name="postal_code" 
+                                           value="{{ client.postal_code if client else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="country" class="form-label">País</label>
+                            <input type="text" class="form-control" id="country" name="country" 
+                                   value="{{ client.country if client else 'Brasil' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">⚙️ Configurações</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                       {% if not client or client.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">
+                                    Cliente Ativo
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Clientes inativos não podem receber novos contratos
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('web.clients') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if client %}Salvar Alterações{% else %}Criar Cliente{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Ajuda -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">💡 Dicas</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Preencha todos os campos obrigatórios (*)
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Use informações precisas para melhor organização
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Email será usado para notificações automáticas
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            CPF/CNPJ ajuda na identificação única
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Endereço completo facilita logística
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Status Atual -->
+            {% if client %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">📊 Status Atual</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Status</small><br>
+                        {% if client.is_active %}
+                        <span class="badge bg-success">Ativo</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inativo</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Data de Cadastro</small><br>
+                        {{ client.created_at.strftime('%d/%m/%Y') if client.created_at else 'N/A' }}
+                    </div>
+                    {% set client_contracts = contracts_by_client.get(client.id, []) %}
+                    <div>
+                        <small class="text-muted">Contratos</small><br>
+                        <strong>{{ client_contracts | length }}</strong> total
+                        {% if client_contracts %}
+                        <br><small class="text-muted">
+                            {{ client_contracts | selectattr('status', 'equalto', 'ativo') | list | length }} ativos
+                        </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Validações -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">🔍 Validações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Email</small><br>
+                        <div id="email-validation"></div>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">CPF/CNPJ</small><br>
+                        <div id="document-validation"></div>
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted">Telefone</small><br>
+                        <div id="phone-validation"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validações em tempo real
+document.getElementById('email').addEventListener('blur', function() {
+    const email = this.value;
+    const validation = document.getElementById('email-validation');
+    
+    if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        validation.innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i>Email inválido</span>';
+    } else if (email) {
+        validation.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Email válido</span>';
+    } else {
+        validation.innerHTML = '';
+    }
+});
+
+document.getElementById('document').addEventListener('blur', function() {
+    const document = this.value.replace(/\D/g, '');
+    const validation = document.getElementById('document-validation');
+    
+    if (document.length === 11) {
+        validation.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>CPF válido</span>';
+    } else if (document.length === 14) {
+        validation.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>CNPJ válido</span>';
+    } else if (document.length > 0) {
+        validation.innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i>CPF/CNPJ incompleto</span>';
+    } else {
+        validation.innerHTML = '';
+    }
+});
+
+document.getElementById('phone').addEventListener('blur', function() {
+    const phone = this.value.replace(/\D/g, '');
+    const validation = document.getElementById('phone-validation');
+    
+    if (phone.length >= 10 && phone.length <= 11) {
+        validation.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Telefone válido</span>';
+    } else if (phone.length > 0) {
+        validation.innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i>Telefone inválido</span>';
+    } else {
+        validation.innerHTML = '';
+    }
+});
+
+// Formatação de CPF/CNPJ
+document.getElementById('document').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, '');
+    
+    if (value.length <= 11) {
+        // CPF
+        value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else {
+        // CNPJ
+        value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+    
+    this.value = value;
+});
+
+// Formatação de CEP
+document.getElementById('postal_code').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, '');
+    value = value.replace(/(\d{5})(\d{3})/, '$1-$2');
+    this.value = value;
+});
+
+// Formatação de telefone
+document.getElementById('phone').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, '');
+    
+    if (value.length <= 10) {
+        value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    } else {
+        value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+    
+    this.value = value;
+});
+
+// Formatação de estado (maiúsculas)
+document.getElementById('state').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}

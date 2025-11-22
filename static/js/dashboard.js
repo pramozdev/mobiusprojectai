@@ -1,3 +1,9 @@
+import { Formatters } from './utils/formatters.js';
+import { errorHandler } from './utils/errorHandler.js';
+import apiService from './services/api.js';
+import { config } from './config.js';
+import { CONSTANTS } from './constants.js';
+
 /**
  * Dashboard Avançado - JavaScript
  * Gerenciamento de gráficos e dados do dashboard
@@ -7,28 +13,21 @@
 const DashboardState = {
     charts: {},
     updateInterval: null,
-    isLoading: false,
-    aiInsights: null,
-    currentData: null
+    isLoading: false
 };
 
-// Utilitários de formatação
-const Formatters = {
-    moeda: (valor) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(valor);
-    },
-
-    numero: (valor) => {
-        return new Intl.NumberFormat('pt-BR').format(valor);
-    },
-
-    percentual: (valor) => {
-        return `${valor.toFixed(2)}%`;
+// Atualizar estado de carregamento
+function updateLoadingState(isLoading) {
+    const loading = document.querySelector(CONSTANTS.SELECTORS.LOADING);
+    const dashboard = document.querySelector(CONSTANTS.SELECTORS.DASHBOARD);
+    
+    if (loading) {
+        loading.style.display = isLoading ? 'flex' : 'none';
     }
-};
+    if (dashboard) {
+        dashboard.style.display = isLoading ? 'none' : 'block';
+    }
+}
 
 // Atualizar timestamp
 function atualizarTimestamp() {
@@ -47,14 +46,14 @@ function criarMetricas(metricas) {
     container.innerHTML = `
         <div class="metric-card">
             <div class="metric-label">Total de Contratos</div>
-            <div class="metric-value">${Formatters.numero(metricas.total_contratos)}</div>
+            <div class="metric-value">${Formatters.number(metricas.total_contratos)}</div>
             <div class="metric-change positive">
                 <span>↗</span> ${metricas.contratos_ativos} ativos
             </div>
         </div>
         <div class="metric-card">
             <div class="metric-label">Valor Total</div>
-            <div class="metric-value">${Formatters.moeda(metricas.valor_total)}</div>
+            <div class="metric-value">${Formatters.currency(metricas.valor_total)}</div>
             <div class="metric-change ${metricas.crescimento_mensal >= 0 ? 'positive' : 'negative'}">
                 <span>${metricas.crescimento_mensal >= 0 ? '↗' : '↘'}</span> 
                 ${Math.abs(metricas.crescimento_mensal)}% este mês
@@ -93,7 +92,7 @@ function criarIndicadores(indicadores) {
         if (key === 'dolar') {
             valorFormatado = `R$ ${data.valor.toFixed(2)}`;
         } else if (key === 'ibovespa') {
-            valorFormatado = Formatters.numero(data.valor);
+            valorFormatado = Formatters.number(data.valor);
         } else {
             valorFormatado = `${data.valor}%`;
         }
@@ -201,7 +200,7 @@ function criarGraficoClientes(dados) {
                 tooltip: {
                     ...ChartConfig.commonOptions.plugins.tooltip,
                     callbacks: {
-                        label: (context) => Formatters.moeda(context.parsed.x)
+                        label: (context) => Formatters.currency(context.parsed.x)
                     }
                 }
             },
@@ -210,7 +209,7 @@ function criarGraficoClientes(dados) {
                     grid: { color: '#334155' },
                     ticks: { 
                         color: '#94a3b8',
-                        callback: (value) => Formatters.moeda(value)
+                        callback: (value) => Formatters.currency(value)
                     }
                 },
                 y: {
@@ -263,7 +262,7 @@ function criarGraficoSetor(dados) {
                     callbacks: {
                         label: (context) => {
                             const label = context.label || '';
-                            const value = Formatters.moeda(context.parsed);
+                            const value = Formatters.currency(context.parsed);
                             return `${label}: ${value}`;
                         }
                     }
@@ -301,7 +300,7 @@ function criarGraficoRegiao(dados) {
                 tooltip: {
                     ...ChartConfig.commonOptions.plugins.tooltip,
                     callbacks: {
-                        label: (context) => Formatters.moeda(context.parsed.y)
+                        label: (context) => Formatters.currency(context.parsed.y)
                     }
                 }
             },
@@ -310,7 +309,7 @@ function criarGraficoRegiao(dados) {
                     grid: { color: '#334155' },
                     ticks: { 
                         color: '#94a3b8',
-                        callback: (value) => Formatters.moeda(value)
+                        callback: (value) => Formatters.currency(value)
                     }
                 },
                 x: {
@@ -373,7 +372,7 @@ function criarTimeline(dados) {
                         label: (context) => {
                             let label = context.dataset.label || '';
                             if (label.includes('Valor')) {
-                                label += ': ' + Formatters.moeda(context.parsed.y);
+                                label += ': ' + Formatters.currency(context.parsed.y);
                             } else {
                                 label += ': ' + context.parsed.y;
                             }
@@ -397,7 +396,7 @@ function criarTimeline(dados) {
                     grid: { drawOnChartArea: false },
                     ticks: { 
                         color: '#94a3b8',
-                        callback: (value) => Formatters.moeda(value)
+                        callback: (value) => Formatters.currency(value)
                     }
                 },
                 x: {
@@ -441,61 +440,147 @@ function criarTabelaSetores(dados) {
     `).join('');
 }
 
-// Carregar dados do dashboard
-async function carregarDados() {
-    if (DashboardState.isLoading) return;
+// Renderizar dashboard com os dados
+function renderDashboard(data) {
+    if (!data) return;
+
+    // Criar todas as visualizações
+    if (data.metricas) criarMetricas(data.metricas);
+    if (data.indicadores_mercado) criarIndicadores(data.indicadores_mercado);
+    if (data.distribuicao_status) criarGraficoStatus(data.distribuicao_status);
+    if (data.top_clientes) criarGraficoClientes(data.top_clientes);
+    if (data.valor_por_setor) criarGraficoSetor(data.valor_por_setor);
+    if (data.valor_por_regiao) criarGraficoRegiao(data.valor_por_regiao);
+    if (data.timeline_vencimentos) criarTimeline(data.timeline_vencimentos);
+    if (data.comparacao_setores) criarTabelaSetores(data.comparacao_setores);
     
-    DashboardState.isLoading = true;
-    
-    try {
-        const response = await fetch('/api/dashboard');
-        if (!response.ok) {
-            throw new Error('Erro ao carregar dados');
-        }
-        
-        const data = await response.json();
-        DashboardState.currentData = data;
-        DashboardState.aiInsights = data.ai_insights;
-        
-        // Criar todas as visualizações
-        criarMetricas(data.metricas);
-        criarIndicadores(data.indicadores_mercado);
-        criarGraficoStatus(data.distribuicao_status);
-        criarGraficoClientes(data.top_clientes);
-        criarGraficoSetor(data.valor_por_setor);
-        criarGraficoRegiao(data.valor_por_regiao);
-        criarTimeline(data.timeline_vencimentos);
-        criarTabelaSetores(data.comparacao_setores);
-        
-        // Criar seções de IA
-        if (data.ai_insights) {
-            criarSecaoAlertas(data.ai_insights.alertas);
-            criarScoreRisco(data.ai_insights.score_risco);
-            criarInsightsIA(data.ai_insights.analise_metricas);
-            criarPrevisoes(data.ai_insights.tendencias);
-        }
-        
-        // Mostrar dashboard e ocultar loading
-        const loading = document.getElementById('loading');
-        const dashboard = document.getElementById('dashboard');
-        
-        if (loading) loading.style.display = 'none';
-        if (dashboard) dashboard.style.display = 'block';
-        
-        atualizarTimestamp();
-        
-    } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        const loading = document.getElementById('loading');
-        if (loading) {
-            loading.innerHTML = `
-                <p style="color: var(--danger);">❌ Erro ao carregar dados. Tente novamente.</p>
-                <button class="btn btn-primary" onclick="carregarDados()">Tentar Novamente</button>
-            `;
-        }
-    } finally {
-        DashboardState.isLoading = false;
+    // Criar seções de IA
+    if (data.ai_insights) {
+        if (data.ai_insights.alertas) criarSecaoAlertas(data.ai_insights.alertas);
+        if (data.ai_insights.score_risco) criarScoreRisco(data.ai_insights.score_risco);
+        if (data.ai_insights.analise_metricas) criarInsightsIA(data.ai_insights.analise_metricas);
+        if (data.ai_insights.tendencias) criarPrevisoes(data.ai_insights.tendencias);
     }
+}
+
+// Carregar dados do dashboard
+async function loadDashboardData() {
+    console.log('🚀 Iniciando loadDashboardData...');
+    
+    if (DashboardState.isLoading) {
+        console.log('⏳ Já está carregando, ignorando...');
+        return;
+    }
+    
+    console.log('📊 Atualizando estado para loading...');
+    DashboardState.isLoading = true;
+    updateLoadingState(true);
+
+    try {
+        console.log('🌐 Chamando apiService.getDashboardData()...');
+        console.log('🔧 apiService disponível:', typeof apiService);
+        console.log('🔧 getDashboardData disponível:', typeof apiService.getDashboardData);
+        
+        const data = await apiService.getDashboardData();
+        console.log('📋 Resposta da API:', data);
+        
+        if (data && !data.error) {
+            console.log('✅ Dados recebidos com sucesso');
+            console.log('📊 Estrutura dos dados:', Object.keys(data));
+            
+            DashboardState.currentData = data;
+            DashboardState.aiInsights = data.ai_insights;
+            
+            console.log('🎨 Renderizando dashboard...');
+            renderDashboard(data);
+            atualizarTimestamp();
+            
+            console.log('✅ Dashboard renderizado com sucesso!');
+        } else {
+            console.error('❌ Erro nos dados:', data);
+            throw new Error(data?.error?.message || 'Dados inválidos recebidos');
+        }
+    } catch (error) {
+        console.error('💥 Erro em loadDashboardData:', error);
+        console.error('📍 Stack trace:', error.stack);
+        
+        // Tentar usar dados mock se a API falhar
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.log('🔄 API falhou, usando dados mock...');
+            try {
+                const mockData = getMockData();
+                renderDashboard(mockData);
+                atualizarTimestamp();
+                console.log('✅ Dashboard renderizado com dados mock!');
+            } catch (mockError) {
+                console.error('💥 Erro ao usar dados mock:', mockError);
+            }
+        }
+        
+        errorHandler.handle(error, 'Erro ao carregar dados do dashboard');
+    } finally {
+        console.log('🏁 Finalizando carregamento...');
+        DashboardState.isLoading = false;
+        updateLoadingState(false);
+    }
+}
+
+// Dados mock para fallback
+function getMockData() {
+    return {
+        metricas: {
+            total_contratos: 150,
+            valor_total: 1500000,
+            contratos_ativos: 120,
+            crescimento_mensal: 5.2,
+            taxa_renovacao: 85,
+            inadimplencia: 3.1
+        },
+        indicadores_mercado: {
+            dolar: { valor: 5.25, variacao: 0.5, tendencia: 'alta' },
+            selic: { valor: 13.25, variacao: 0, tendencia: 'estavel' },
+            ibovespa: { valor: 120000, variacao: 2.1, tendencia: 'alta' }
+        },
+        distribuicao_status: [
+            { status: 'Ativo', quantidade: 120, cor: '#10b981' },
+            { status: 'Pendente', quantidade: 20, cor: '#f59e0b' },
+            { status: 'Cancelado', quantidade: 10, cor: '#ef4444' }
+        ],
+        top_clientes: [
+            { cliente: 'Tech Solutions Ltda', valor: 500000 },
+            { cliente: 'Consultoria Empresarial', valor: 350000 },
+            { cliente: 'Comércio Variejista ME', valor: 200000 }
+        ],
+        valor_por_setor: [
+            { setor: 'Tecnologia', valor: 800000 },
+            { setor: 'Consultoria', valor: 450000 },
+            { setor: 'Varejo', valor: 250000 }
+        ],
+        valor_por_regiao: [
+            { regiao: 'São Paulo', valor: 900000 },
+            { regiao: 'Rio de Janeiro', valor: 400000 },
+            { regiao: 'Minas Gerais', valor: 200000 }
+        ],
+        timeline_vencimentos: [
+            { data: '2024-12-01', valor: 150000, contratos: 3 },
+            { data: '2024-12-15', valor: 200000, contratos: 4 },
+            { data: '2025-01-01', valor: 300000, contratos: 5 }
+        ],
+        comparacao_setores: [
+            { setor: 'Tecnologia', contratos: 45, valor: 800000, ticket_medio: 17778, crescimento: 12.5 },
+            { setor: 'Consultoria', contratos: 30, valor: 450000, ticket_medio: 15000, crescimento: 8.3 },
+            { setor: 'Varejo', contratos: 25, valor: 250000, ticket_medio: 10000, crescimento: -2.1 }
+        ],
+        ai_insights: {
+            alertas: [
+                { tipo: 'warning', mensagem: '3 contratos vencem esta semana' },
+                { tipo: 'info', mensagem: 'Novo cliente potencial identificado' }
+            ],
+            score_risco: { pontuacao: 75, nivel: 'Moderado' },
+            analise_metricas: 'As métricas indicam crescimento saudável...',
+            tendencias: 'Projeção de aumento de 10% no próximo trimestre...'
+        }
+    };
 }
 
 // Criar seção de alertas
@@ -610,7 +695,7 @@ function criarPrevisoes(tendencias) {
             <div class="forecast-grid">
                 <div class="forecast-item">
                     <div class="forecast-label">Próximo Mês - Valor</div>
-                    <div class="forecast-value">${Formatters.moeda(previsao.valor)}</div>
+                    <div class="forecast-value">${Formatters.currency(previsao.valor)}</div>
                     <div class="forecast-trend ${tendencias.tendencia_valor}">
                         ${tendencias.tendencia_valor === 'crescente' ? '↗' : '↘'} ${tendencias.tendencia_valor}
                     </div>
@@ -726,16 +811,7 @@ function mostrarRespostaPergunta(pergunta, resposta) {
 
 // Atualizar dados manualmente
 function atualizarDados() {
-    const dashboard = document.getElementById('dashboard');
-    if (dashboard) {
-        dashboard.style.opacity = '0.5';
-    }
-    
-    carregarDados().then(() => {
-        if (dashboard) {
-            dashboard.style.opacity = '1';
-        }
-    });
+    loadDashboardData();
 }
 
 // Limpar recursos ao sair
@@ -753,11 +829,20 @@ function cleanup() {
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-    carregarDados();
+    loadDashboardData();
     
     // Atualizar a cada 30 segundos
-    DashboardState.updateInterval = setInterval(atualizarDados, 30000);
+    DashboardState.updateInterval = setInterval(atualizarDados, CONSTANTS.INTERVALS.DASHBOARD_REFRESH);
 });
 
 // Limpar ao sair da página
 window.addEventListener('beforeunload', cleanup);
+
+// Exportar funções para uso em outros módulos
+export {
+    DashboardState,
+    loadDashboardData,
+    atualizarTimestamp,
+    renderDashboard,
+    updateLoadingState
+};

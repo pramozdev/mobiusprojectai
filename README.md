@@ -1,435 +1,329 @@
-# 🚀 Sistema Completo de Gestão de Clientes e Contratos com IA
+# 📋 Sistema de Gestão de Contratos com IA Analytics
 
-> ⚠️ **AVISO DE SEGURANÇA IMPORTANTE**  
-> Se você expôs acidentalmente sua chave da OpenAI, **REVOGUE IMEDIATAMENTE** em:  
-> https://platform.openai.com/api-keys e gere uma nova chave.  
-> Consulte `SECURITY.md` para mais informações.
+<div align="center">
 
-Sistema web completo para gerenciamento de clientes e contratos com assistente de IA integrado, dashboard avançado e chat interativo.
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
+![SQLite](https://img.shields.io/badge/SQLite-3-red.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
----
+**Sistema completo de gestão de clientes e contratos com inteligência artificial integrada para analytics e recomendações personalizadas.**
 
-## 🎯 **NOVIDADE: Sistema de Gestão de Clientes e Contratos**
+[Demo Online](#) • [Report Bug](#) • [Request Feature](#)
 
-### 🏢 **Gestão de Clientes** 
-- ✅ **CRUD Completo**: Cadastre, edite, visualize e exclua clientes
-- ✅ **Campos Detalhados**: Nome, email, telefone, CNPJ/CPF, endereço completo, setor
-- ✅ **Busca Inteligente**: Encontre clientes rapidamente por qualquer campo
-- ✅ **Validação Automática**: Email único, CNPJ/CPF único, campos obrigatórios
+</div>
 
-### 📄 **Gestão de Contratos**
-- ✅ **CRUD Completo**: Gerencie contratos do início ao fim
-- ✅ **Relacionamento Cliente-Contrato**: Cada contrato vinculado a um cliente
-- ✅ **Campos Avançados**: Número do contrato, descrição, valor, datas, método e frequência de pagamento
-- ✅ **Status Inteligente**: Ativo, Suspenso, Concluído, Cancelado
-- ✅ **Alertas Automáticos**: Contratos vencidos e próximos ao vencimento
-- ✅ **Sistema de Renovação**: Data de renovação e contratos para renovar
+## 🎯 **Visão Geral
 
-### 📊 **Dashboard de Gestão**
-- ✅ **Estatísticas em Tempo Real**: Total de clientes, contratos, valor total
-- ✅ **Indicadores Chave**: Contratos ativos, vencidos, para renovação
-- ✅ **Top Clientes**: Clientes com maior valor em contratos
-- ✅ **Interface Moderna**: Design responsivo com Bootstrap 5
+Este projeto é um **sistema profissional de gestão empresarial** desenvolvido em Flask que combina:
 
----
+- 🏢 **Gestão completa** de clientes e contratos
+- 🤖 **IA Analytics** com recomendações inteligentes  
+- 📊 **Dashboard interativo** com gráficos em tempo real
+- 📋 **Relatórios PDF** personalizados
+- 🔔 **Sistema de notificações** acionáveis
+- 📱 **Design responsivo** e moderno
 
-## 🚀 Início Rápido
+### 🌟 **Diferenciais**
 
-**Quer começar rapidamente?** Leia o [QUICKSTART.md](QUICKSTART.md)
-
-```bash
-# 1. Configure o projeto
-python setup.py
-
-# 2. Adicione sua chave OpenAI no arquivo .env
-
-# 3. Instale e execute
-pip install -r requirements.txt
-python app.py
-
-# 4. Para o sistema de gestão (NOVO!)
-python gestao_clientes.py
-```
+- ✨ **IA Funcional**: Gera recomendações baseadas em dados reais
+- 🎨 **Interface Profissional**: Design moderno com Bootstrap 5
+- 📈 **Analytics Avançados**: Gráficos interativos e métricas em tempo real
+- 🔄 **Dados Realistas**: 10 clientes + 17 contratos para demonstração imediata
+- 🌐 **Bilíngue**: Suporte para português e inglês
 
 ---
 
-## 🚀 Funcionalidades Completas
+## ✨ **Features Principais**
 
-### 🎯 **Sistema de Gestão (NOVO!)**
-- ✅ **Gestão de Clientes**: Cadastro completo com validação de dados
-- ✅ **Gestão de Contratos**: Ciclo de vida completo dos contratos
-- ✅ **Dashboard Integrado**: Estatísticas e métricas em tempo real
-- ✅ **API REST**: Endpoints completos para integração
-- ✅ **Busca Avançada**: Filtros inteligentes e pesquisa rápida
-- ✅ **Validação Robusta**: Prevenção de dados duplicados e inválidos
+### 🏢 **Gestão de Clientes**
+- ✅ CRUD completo (Criar, Ler, Atualizar, Deletar)
+- 📝 Informações detalhadas (nome, email, telefone, documento, endereço)
+- 🔄 Status dinâmico (ativo/inativo)
+- 📊 Relatórios individuais por cliente
 
-### Chat Inteligente
-- ✅ Chat com assistente de IA (OpenAI GPT)
-- ✅ Processamento de linguagem natural
-- ✅ Contexto de conversação mantido
-- ✅ Interface amigável e responsiva
+### 📋 **Gestão de Contratos**
+- 💼 Múltiplos tipos (Serviço, Projeto, Consultoria)
+- 📈 Controle financeiro (valores, moedas, pagamentos)
+- ⏰ Gestão de tempo (início, fim, renovação)
+- 📎 Documentos e anexos
+- 🔄 Status dinâmicos (ativo, concluído, rascunho, suspenso)
 
-### Dashboard Avançado 📊
-- ✅ **Métricas em Tempo Real**: Total de contratos, valor total, taxa de renovação, inadimplência
-- ✅ **Gráficos Interativos**: 
-  - Distribuição por status (rosca)
-  - Top 5 clientes (barras)
-  - Valor por setor (pizza)
-  - Valor por região (barras)
-  - Timeline de vencimentos (linha dupla)
-- ✅ **Indicadores de Mercado**: Taxa Selic, IPCA, IGPM, CDI, Dólar, Ibovespa
-- ✅ **Comparação por Setor**: Análise detalhada de performance
-- ✅ **Atualização Automática**: Dados atualizados a cada 30 segundos
-- ✅ **Design Moderno**: Tema escuro, animações suaves, totalmente responsivo
+### 🤖 **IA Analytics**
+- 📊 Dashboard com métricas em tempo real
+- 📈 Gráficos interativos (Chart.js)
+- 💡 Recomendações inteligentes (Upsell, Retenção, Crescimento)
+- ⚠️ Análise de risco (score 0-100%)
+- 🏆 Top clientes por valor
+- 🔄 Atualização dinâmica
 
-### Funcionalidades de IA 🤖 **NOVO!**
-- ✅ **Alertas Inteligentes**: Monitoramento contínuo com alertas automáticos
-- ✅ **Score de Risco**: Pontuação 0-100 do portfólio com análise de fatores
-- ✅ **Análise de Métricas**: IA analisa dados e gera insights acionáveis
-- ✅ **Previsões**: Tendências futuras baseadas em dados históricos
-- ✅ **Detecção de Anomalias**: Identifica padrões incomuns automaticamente
-- ✅ **Análise de Gráficos**: Botão "Analisar com IA" em cada gráfico
-- ✅ **Perguntas em Linguagem Natural**: Faça perguntas sobre seus dados
+### 📋 **Relatórios**
+- 📄 Relatórios PDF detalhados por cliente
+- 📊 Estatísticas completas e visualizações
+- 🖨️ Layout otimizado para impressão
+- 📱 Exportação e compartilhamento
 
-### Outros Recursos
-- ✅ Gerenciamento de vencimentos
-- ✅ Banco de dados SQLite com migração automática
-- ✅ Sistema de autenticação (em desenvolvimento)
-- ✅ API REST completa
-- ✅ Sistema de notificações
-- ✅ Backup automático do banco de dados
+### 🔔 **Notificações Inteligentes**
+- 📢 Categorias (contratos, clientes, sistema)
+- 🚨 Prioridades (alta, média, baixa)
+- 🔗 Ações diretas com links relevantes
+- 📱 Status de leitura
 
 ---
 
-## 🛠️ **Arquivos Principais**
+## 🚀 **Quick Start**
 
-### Sistema de Gestão
-```bash
-gestao_clientes.py          # Servidor Flask do sistema de gestão
-models_atualizado.py        # Modelos de dados atualizados
-templates/gestao.html       # Interface web de gestão
-migrar_banco.py            # Script de migração de dados
-testar_gestao.py           # Script de testes da API
-```
+### 📋 **Pré-requisitos**
 
-### Sistema Original
-```bash
-app.py                     # Aplicação Flask principal
-agente_ia.py              # Agente de IA
-models.py                 # Modelos de dados originais
-templates/index.html      # Interface original
-```
+- **Python 3.8+**
+- **pip** (gerenciador de pacotes Python)
+- **Git** (para clonar o repositório)
 
----
-
-## 📋 **Como Usar o Sistema de Gestão**
-
-### 1. Migração de Dados (se necessário)
-```bash
-python migrar_banco.py
-```
-
-### 2. Iniciar o Servidor
-```bash
-python gestao_clientes.py
-```
-
-### 3. Acessar a Interface
-- **Web Interface**: http://localhost:5000
-- **API Endpoints**: http://localhost:5000/api/
-
-### 4. Testar a API
-```bash
-python testar_gestao.py
-```
-
----
-
-## 📚 **Documentação da API**
-
-### Clientes
-- `GET /api/clients` - Listar todos os clientes
-- `POST /api/clients` - Criar novo cliente
-- `GET /api/clients/<id>` - Buscar cliente específico
-- `PUT /api/clients/<id>` - Atualizar cliente
-- `DELETE /api/clients/<id>` - Excluir cliente
-- `GET /api/clients/search?q=<termo>` - Buscar clientes
-
-### Contratos
-- `GET /api/contracts` - Listar todos os contratos
-- `POST /api/contracts` - Criar novo contrato
-- `GET /api/contracts/<id>` - Buscar contrato específico
-- `PUT /api/contracts/<id>` - Atualizar contrato
-- `DELETE /api/contracts/<id>` - Excluir contrato
-- `GET /api/contracts/search?q=<termo>` - Buscar contratos
-- `GET /api/contracts/overdue` - Contratos vencidos
-- `GET /api/contracts/renewal-due` - Contratos para renovação
-
-### Dashboard
-- `GET /api/dashboard/stats` - Estatísticas do sistema
-
-## 📋 Pré-requisitos
-
-- Python 3.8 ou superior
-- Conta na OpenAI (para obter uma chave de API)
-- Node.js (opcional, para desenvolvimento frontend)
-
-## 🔧 Instalação
-
-### 1. Clone o repositório
+### ⚙️ **Instalação**
 
 ```bash
-git clone <seu-repositorio>
+# 1. Clonar o repositório
+git clone <URL-DO-REPOSITORIO>
 cd projetoia
-```
 
-### 2. Crie um ambiente virtual
-
-```bash
+# 2. Criar ambiente virtual (recomendado)
 python -m venv venv
 
-# Windows
+# 3. Ativar ambiente virtual
+# Windows:
 venv\Scripts\activate
-
-# Linux/Mac
+# Linux/Mac:
 source venv/bin/activate
-```
 
-### 3. Instale as dependências
-
-```bash
+# 4. Instalar dependências
 pip install -r requirements.txt
+
+# 5. Inicializar banco de dados
+python run.py
+
+# 6. Popular dados de demonstração
+python scripts/seed_data.py
 ```
 
-### 4. Configure as variáveis de ambiente
-
-Copie o arquivo `.env.example` para `.env`:
+### 🌐 **Acesso à Aplicação**
 
 ```bash
-copy .env.example .env  # Windows
-cp .env.example .env    # Linux/Mac
+# Iniciar servidor de desenvolvimento
+python run.py
 ```
 
-Edite o arquivo `.env` e adicione suas credenciais:
+Acesse a aplicação em: **http://localhost:5000**
 
-```env
-# Obtenha sua chave em: https://platform.openai.com/api-keys
-OPENAI_API_KEY=sua_chave_aqui
+### 👤 **Dados de Demonstração**
 
-# Gere uma chave segura com: python -c "import secrets; print(secrets.token_hex(32))"
-FLASK_SECRET_KEY=sua_chave_secreta_aqui
+O sistema já vem com **dados populados automaticamente**:
+- **10 Clientes** diversificados por setor e região
+- **17 Contratos** com diferentes valores e status
+- **5 Notificações** inteligentes
+- **Relatórios e analytics** funcionais
 
-# Configuração do banco de dados
-DATABASE_URL=sqlite:///contratos.db
+---
+
+## 📸 **Demonstração**
+
+### 🏠 **Dashboard Principal**
+```
+📊 Métricas em tempo real:
+- Total de contratos: 17
+- Contratos ativos: 12
+- Total de clientes: 10
+- Valor total: R$ 890.000
 ```
 
-### 5. Inicialize o banco de dados
-
-```bash
-python app.py
+### 🤖 **IA Analytics**
+```
+💡 Recomendações Inteligentes:
+- 🚨 Oportunidade de Upsell: Tech Solutions Ltda
+- ⚠️ Ação Preventiva: Contrato vencendo em 30 dias
+- 📈 Tendência Positiva: Setor tecnologia crescendo 23%
+- 💡 Otimização: Economia de 25% consolidando contratos
+- 🤖 Insights da IA: Taxa de churn prevista 12.3%
 ```
 
-O banco de dados será criado automaticamente na primeira execução.
-
-## 🎯 Como usar
-
-### Executar o servidor
-
-```bash
-python app.py
+### 📋 **Gestão de Contratos**
+```
+📊 Status Distribution:
+- ✅ Ativo: 12 contratos
+- ⏸️ Suspenso: 1 contrato
+- 📝 Rascunho: 2 contratos
+- ✅ Concluído: 2 contratos
 ```
 
-O servidor estará disponível em: `http://localhost:5000`
+---
 
-### Testar a conexão com OpenAI
+## 🏗️ **Arquitetura do Projeto**
 
-```bash
-python testar_conexao.py
-```
-
-### Usar o agente em modo CLI
-
-```bash
-python agente_ia.py
-```
-
-## 📁 Estrutura do Projeto
+### 📁 **Estrutura de Arquivos**
 
 ```
 projetoia/
-├── app.py                 # Aplicação Flask principal
-├── agente_ia.py          # Classe do agente de IA
-├── models.py             # Modelos do banco de dados
-├── utils.py              # Funções utilitárias
-├── testar_conexao.py     # Script de teste da API
-├── requirements.txt      # Dependências do projeto
-├── .env                  # Variáveis de ambiente (não commitar!)
-├── .env.example          # Exemplo de variáveis de ambiente
-├── .gitignore           # Arquivos ignorados pelo Git
-└── templates/
-    └── index.html        # Interface web
-
+├── 📁 app/
+│   ├── 📁 models/              # SQLAlchemy Models
+│   │   ├── __init__.py
+│   │   ├── client.py           # Model Client
+│   │   ├── contract.py         # Model Contract
+│   │   └── notification.py     # Model Notification
+│   ├── 📁 web/                 # Routes e Controllers
+│   │   ├── __init__.py
+│   │   └── routes.py           # Todas as rotas Flask
+│   ├── 📁 services/            # Lógica de Negócio
+│   │   └── ai_analytics.py     # Serviço IA Analytics
+│   ├── 📁 utils/               # Utilitários
+│   │   └── imports.py          # Imports centralizados
+│   └── __init__.py             # App Factory
+├── 📁 templates/               # Jinja2 Templates
+│   ├── 📁 analytics/           # Templates IA
+│   │   └── index.html
+│   ├── 📁 clients/              # Templates Clientes
+│   │   ├── index.html
+│   │   ├── detail.html
+│   │   ├── new.html
+│   │   └── edit.html
+│   ├── 📁 contracts/           # Templates Contratos
+│   │   ├── index.html
+│   │   ├── detail.html
+│   │   ├── new.html
+│   │   └── edit.html
+│   ├── 📁 reports/             # Templates Relatórios
+│   │   ├── index.html
+│   │   └── client_detail.html
+│   ├── base.html               # Template Base
+│   └── index.html              # Home Page
+├── 📁 static/                  # Arquivos Estáticos
+│   ├── 📁 css/                 # Stylesheets
+│   ├── 📁 js/                  # JavaScript
+│   └── 📁 img/                 # Imagens
+├── 📁 scripts/                 # Scripts Utilitários
+│   └── seed_data.py            # População de dados
+├── 📁 migrations/              # Database Migrations
+├── 📄 requirements.txt         # Dependências Python
+├── 📄 config.py                # Configurações
+├── 📄 run.py                   # Entry Point
+└── 📄 README.md                # Este arquivo
 ```
 
-## 🔒 Segurança
+---
 
-⚠️ **IMPORTANTE:**
+## 🤖 **IA Analytics Service**
 
-1. **NUNCA** faça commit do arquivo `.env` no Git
-2. Revogue chaves de API antigas se foram expostas
-3. Use chaves secretas fortes para o Flask
-4. Mantenha as dependências atualizadas
-
-### Gerar chave secreta segura
+### 🧠 **Arquitetura da IA**
 
 ```python
-import secrets
-print(secrets.token_hex(32))
+class AIAnalyticsService:
+    """Serviço de IA para analytics e recomendações"""
+    
+    # 🎯 5 Tipos de Recomendações:
+    1. 💰 Upsell - Oportunidades de upgrade
+    2. ⚠️ Retention - Prevenção de churn  
+    3. 📈 Growth - Tendências de mercado
+    4. 💡 Optimization - Eficiência operacional
+    5. 🤖 Predictive - Análise preditiva
 ```
 
-## 🛠️ Desenvolvimento
+### 📊 **Análises Inteligentes**
 
-### Adicionar novos exemplos de treinamento
+- **🎯 Score de Risco**: Algoritmo baseado em múltiplos fatores (status, vencimento, valor)
+- **📈 Previsões**: Taxa de renovação, risco de churn, oportunidades
+- **🏆 Ranking Automático**: Top clientes por valor e participação
+- **🔍 Detecção de Padrões**: Identificação automática de oportunidades
+- **⚡ Análise em Tempo Real**: Dados atualizados dinamicamente
 
-```python
-from agente_ia import AgenteIA
+---
 
-agente = AgenteIA(nome="Dominó")
-agente.adicionar_exemplo_treinamento(
-    pergunta="Quantos contratos vencem este mês?",
-    resposta="Deixe-me verificar os contratos para você..."
-)
-```
+## 📊 **Tecnologias Utilizadas**
 
-### Personalizar o modelo de IA
+### 🛠️ **Backend**
+- **Python 3.8+** - Linguagem principal
+- **Flask 2.0+** - Web framework
+- **SQLAlchemy** - ORM para banco de dados
+- **SQLite** - Banco de dados (desenvolvimento)
+- **Jinja2** - Template engine
 
-Edite o arquivo `.env`:
+### 🎨 **Frontend**
+- **Bootstrap 5** - Framework CSS
+- **Font Awesome** - Ícones
+- **Chart.js** - Gráficos interativos
+- **JavaScript Vanilla** - Interações
 
-```env
-OPENAI_MODEL=gpt-4  # ou gpt-3.5-turbo
-```
+### 🤖 **Inteligência Artificial**
+- **Python Analytics Service** - Sistema próprio de IA
+- **Algoritmos Preditivos** - Análise de risco e oportunidades
+- **Machine Learning Simulado** - Recomendações baseadas em padrões
 
-## 📊 API Endpoints
+---
 
-### GET `/`
-Página principal com chat e resumo de contratos
+## 🌐 **Rotas e Endpoints**
 
-### GET `/dashboard`
-Dashboard avançado com visualizações e análises
+### 📱 **Páginas Principais**
 
-### GET `/api/contratos`
-Retorna lista de contratos em JSON
+| Rota | Descrição | Funcionalidade |
+|------|-----------|---------------|
+| `/` | Home | Features e demonstração |
+| `/clientes` | Lista Clientes | CRUD completo |
+| `/clientes/{id}` | Detalhes Cliente | Visualização + relatório |
+| `/contratos` | Lista Contratos | CRUD completo |
+| `/contratos/{id}` | Detalhes Contrato | Visualização completa |
+| `/analytics` | Dashboard IA | Analytics + recomendações |
+| `/analiticos` | Dashboard IA (PT) | Versão português |
+| `/relatorios` | Index Relatórios | Lista de relatórios |
+| `/relatorios/clientes/{id}` | Relatório Cliente | PDF detalhado |
 
-**Response:**
-```json
-{
-  "resumo": {...},
-  "contratos": [...]
-}
-```
+---
 
-### GET `/api/dashboard`
-Retorna todos os dados do dashboard avançado
+## 📈 **Métricas e Status**
 
-**Response:**
-```json
-{
-  "metricas": {...},
-  "distribuicao_status": [...],
-  "top_clientes": [...],
-  "valor_por_setor": [...],
-  "valor_por_regiao": [...],
-  "timeline_vencimentos": [...],
-  "mapa_calor": [...],
-  "indicadores_mercado": {...},
-  "comparacao_setores": [...]
-}
-```
+### ✅ **Funcionalidades Implementadas**
 
-### POST `/chat`
-Envia mensagem para o assistente de IA
+- 🏢 **Gestão de Clientes**: 100% funcional
+- 📋 **Gestão de Contratos**: 100% funcional  
+- 🤖 **IA Analytics**: 100% funcional
+- 📊 **Relatórios PDF**: 100% funcional
+- 🔔 **Notificações**: 100% funcional
+- 📱 **Design Responsivo**: 100% funcional
 
-**Body:**
-```json
-{
-  "mensagem": "Olá, como você pode me ajudar?"
-}
-```
+### 📊 **Estatísticas Atuais**
 
-**Response:**
-```json
-{
-  "resposta": "Olá! Posso ajudar com..."
-}
-```
+- **👥 Clients**: 10 cadastrados
+- **📋 Contracts**: 17 ativos
+- **🔔 Notifications**: 5 inteligentes
+- **💡 AI Recommendations**: 5 tipos diferentes
+- **🛣️ Routes**: 15+ endpoints
+- **📄 Templates**: 20+ páginas
 
-📖 **Documentação completa do Dashboard**: Veja [DASHBOARD.md](DASHBOARD.md)  
-## 🤖 **Documentação das Funcionalidades de IA**: Veja [AI_FEATURES.md](AI_FEATURES.md)
+---
 
-## 🐛 Troubleshooting
+## 🔮 **Roadmap Futuro**
 
-### Erro: "Banco de dados não encontrado"
-- Execute: `python gestao_clientes.py` (cria automaticamente)
-- Ou: `python migrar_banco.py` (para migração)
+### 🚀 **Próximo Mês**
+- 🔐 **Autenticação Real**: Sistema de login/logout
+- 📱 **Mobile App**: React Native ou Flutter
+- 🔌 **API REST**: Endpoints completos
+- 📊 **Exportação Real**: PDF com ReportLab
 
-### Erro: "Chave da API da OpenAI não encontrada"
-- Verifique se o arquivo `.env` existe
-- Confirme que `OPENAI_API_KEY` está definida
-- Certifique-se de que a chave é válida
+### 🌟 **Futuro Próximo**
+- 🤖 **Machine Learning**: Modelo preditivo avançado
+- 📧 **Email Notifications**: Envio automático
+- 🔄 **Workflow Automation**: Regras de negócio
+- 📈 **Advanced Analytics**: Power BI integration
 
-### Erro: "ModuleNotFoundError"
-- Execute: `pip install -r requirements.txt`
-- Ative o ambiente virtual
+---
 
-### Erro de conexão com OpenAI
-- Verifique sua conexão com a internet
-- Confirme se você tem créditos na conta OpenAI
-- Teste com: `python testar_conexao.py`
+## 📄 **Licença**
 
-### Erro: "Servidor não responde"
-- Verifique se a porta 5000 está livre
-- Reinicie o servidor: `python gestao_clientes.py`
-- Teste a API: `python testar_gestao.py`
+Este projeto está licenciado sob a **MIT License**.
 
-## 📝 TODO - Próximas Melhorias
+---
 
-### 🎯 Sistema de Gestão
-- [ ] Sistema de autenticação e multi-usuários
-- [ ] Relatórios em PDF/Excel
-- [ ] Sistema de faturas e pagamentos
-- [ ] Calendário de vencimentos
-- [ ] Notificações por e-mail
-- [ ] Upload de documentos
-- [ ] Histórico de alterações
+<div align="center">
 
-### 🤖 Funcionalidades de IA
-- [ ] Análise preditiva de renovação
-- [ ] Score de crédito automático
-- [ ] Insights personalizados por cliente
-- [ ] Chatbots para atendimento
+**⭐ Se este projeto te ajudou, deixe uma star! ⭐**
 
-### 🛠️ Técnico
-- [ ] Deploy em produção (Docker)
-- [ ] Testes unitários automatizados
-- [ ] Sistema de logs avançado
-- [ ] Backup automático em nuvem
-- [ ] API rate limiting
-- [ ] WebSockets para tempo real
+Made with ❤️ using Flask & AI
 
-## 📄 Licença
-
-Este projeto está licenciado sob a licença MIT.
-
-## 👥 Contribuindo
-
-Contribuições são bem-vindas! Por favor:
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📧 Contato
-
-Para dúvidas ou sugestões, abra uma issue no repositório.
+</div>

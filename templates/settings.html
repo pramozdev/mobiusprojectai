@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - Sistema de Gestão{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">⚙️ Configurações</h1>
+            <p class="text-muted mb-0">Gerencie as configurações do sistema</p>
+        </div>
+    </div>
+
+    <!-- Configurações Gerais -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">🔧 Configurações Gerais</h5>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="app_name" class="form-label">Nome da Aplicação</label>
+                            <input type="text" class="form-control" id="app_name" value="Sistema de Gestão de Contratos">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="app_version" class="form-label">Versão</label>
+                            <input type="text" class="form-control" id="app_version" value="1.0.0" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="timezone" class="form-label">Fuso Horário</label>
+                            <select class="form-select" id="timezone">
+                                <option value="America/Sao_Paulo" selected>America/Sao_Paulo (GMT-3)</option>
+                                <option value="America/New_York">America/New_York (GMT-5)</option>
+                                <option value="Europe/London">Europe/London (GMT+0)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="language" class="form-label">Idioma</label>
+                            <select class="form-select" id="language">
+                                <option value="pt-BR" selected>Português (Brasil)</option>
+                                <option value="en-US">English (US)</option>
+                                <option value="es-ES">Español</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="email_notifications" checked>
+                        <label class="form-check-label" for="email_notifications">
+                            Habilitar notificações por email
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="auto_backup" checked>
+                        <label class="form-check-label" for="auto_backup">
+                            Backup automático diário
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Salvar Configurações
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configurações de Contratos -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">📋 Configurações de Contratos</h5>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="default_contract_duration" class="form-label">Duração Padrão (dias)</label>
+                            <input type="number" class="form-control" id="default_contract_duration" value="365">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="renewal_warning_days" class="form-label">Aviso de Renovação (dias)</label>
+                            <input type="number" class="form-control" id="renewal_warning_days" value="30">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="default_currency" class="form-label">Moeda Padrão</label>
+                            <select class="form-select" id="default_currency">
+                                <option value="BRL" selected>BRL - Real Brasileiro</option>
+                                <option value="USD">USD - Dólar Americano</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="contract_prefix" class="form-label">Prefixo de Contrato</label>
+                            <input type="text" class="form-control" id="contract_prefix" value="CTR">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="auto_renewal_default" checked>
+                        <label class="form-check-label" for="auto_renewal_default">
+                            Renovação automática padrão
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Salvar Configurações
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configurações de API -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">🔌 Configurações de API</h5>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="mb-3">
+                    <label for="openai_api_key" class="form-label">Chave API OpenAI</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="openai_api_key" value="sk-****************">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small class="form-text text-muted">
+                        Chave da API para funcionalidades de IA. Mantenha em segredo.
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="openai_model" class="form-label">Modelo OpenAI</label>
+                    <select class="form-select" id="openai_model">
+                        <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="enable_ai_features" checked>
+                        <label class="form-check-label" for="enable_ai_features">
+                            Habilitar funcionalidades de IA
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="use_local_ai">
+                        <label class="form-check-label" for="use_local_ai">
+                            Usar agente IA local (sem OpenAI)
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Salvar Configurações
+                </button>
+                <button type="button" class="btn btn-outline-secondary ms-2" id="testConnection">
+                    <i class="fas fa-plug me-2"></i>Testar Conexão
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Informações do Sistema -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">💻 Informações do Sistema</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Versão Python:</strong></td>
+                            <td>3.12.0</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Versão Flask:</strong></td>
+                            <td>2.3.3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ambiente:</strong></td>
+                            <td>Development</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Banco de Dados:</strong></td>
+                            <td>SQLite</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Último Backup:</strong></td>
+                            <td>Há 2 horas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Uso de Memória:</strong></td>
+                            <td>45 MB</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações de Sistema -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">🔧 Ações de Sistema</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Manutenção</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-download me-2"></i>Fazer Backup Agora
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-broom me-2"></i>Limpar Cache
+                        </button>
+                        <button class="btn btn-outline-info">
+                            <i class="fas fa-chart-bar me-2"></i>Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Dados</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success">
+                            <i class="fas fa-file-export me-2"></i>Exportar Dados
+                        </button>
+                        <button class="btn btn-outline-warning">
+                            <i class="fas fa-file-import me-2"></i>Importar Dados
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Limpar Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle password visibility
+document.getElementById('toggleApiKey').addEventListener('click', function() {
+    const apiKeyInput = document.getElementById('openai_api_key');
+    const icon = this.querySelector('i');
+    
+    if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        apiKeyInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+
+// Test connection
+document.getElementById('testConnection').addEventListener('click', function() {
+    const apiKey = document.getElementById('openai_api_key').value;
+    const model = document.getElementById('openai_model').value;
+    
+    // Simulação de teste
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testando...';
+    
+    setTimeout(() => {
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-plug me-2"></i>Testar Conexão';
+        
+        // Mostrar resultado
+        if (apiKey.startsWith('sk-')) {
+            alert('✅ Conexão com OpenAI bem-sucedida!');
+        } else {
+            alert('❌ Falha na conexão. Verifique a chave da API.');
+        }
+    }, 2000);
+});
+
+// Form submissions
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Salvando...';
+        
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            alert('✅ Configurações salvas com sucesso!');
+        }, 1500);
+    });
+});
+</script>
+{% endblock %}

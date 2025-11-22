@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório - {{ report.client.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.clients') }}">Clientes</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.client_detail', client_id=report.client.id) }}">{{ report.client.name }}</a></li>
+                    <li class="breadcrumb-item active">Relatório</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">📊 Relatório do Cliente</h1>
+            <p class="text-muted mb-0">Relatório detalhado: {{ report.client.name }}</p>
+        </div>
+        <div>
+            <button class="btn btn-danger" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimir
+            </button>
+            <button class="btn btn-success ms-2" onclick="exportPDF()">
+                <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+            </button>
+            <a href="{{ url_for('web.client_detail', client_id=report.client.id) }}" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Informações do Cliente -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">🏢 Dados do Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Nome:</strong></td>
+                            <td>{{ report.client.name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documento:</strong></td>
+                            <td>{{ report.client.document or 'Não informado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ report.client.email or 'Não informado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Telefone:</strong></td>
+                            <td>{{ report.client.phone or 'Não informado' }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Endereço:</strong></td>
+                            <td>{{ report.client.address or 'Não informado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cidade/UF:</strong></td>
+                            <td>{{ report.client.city or '' }}/{{ report.client.state or '' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CEP:</strong></td>
+                            <td>{{ report.client.postal_code or 'Não informado' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td>
+                                {% if report.client.is_active %}
+                                <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-1">{{ report.stats.total_contracts }}</h3>
+                    <small>Total de Contratos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-1">{{ report.stats.active_contracts }}</h3>
+                    <small>Contratos Ativos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-1">R$ {{ "{:,.2f}".format(report.stats.total_value) }}</h3>
+                    <small>Valor Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-1">R$ {{ "{:,.2f}".format(report.stats.avg_contract_value) }}</h3>
+                    <small>Valor Médio</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contratos -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">📋 Contratos do Cliente</h5>
+        </div>
+        <div class="card-body">
+            {% if report.contracts %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Contrato</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Início</th>
+                            <th>Término</th>
+                            <th>Dias Restantes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contract in report.contracts %}
+                        <tr>
+                            <td>
+                                <strong>{{ contract.title }}</strong>
+                                {% if contract.contract_number %}
+                                <br><small class="text-muted">#{{ contract.contract_number }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>R$ {{ "{:,.2f}".format(contract.value) }}</strong>
+                            </td>
+                            <td>
+                                {% if contract.status == 'ativo' %}
+                                <span class="badge bg-success">Ativo</span>
+                                {% elif contract.status == 'rascunho' %}
+                                <span class="badge bg-secondary">Rascunho</span>
+                                {% elif contract.status == 'suspenso' %}
+                                <span class="badge bg-warning">Suspenso</span>
+                                {% elif contract.status == 'concluído' %}
+                                <span class="badge bg-info">Concluído</span>
+                                {% elif contract.status == 'cancelado' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ contract.start_date.strftime('%d/%m/%Y') if contract.start_date else 'N/A' }}</td>
+                            <td>{{ contract.end_date.strftime('%d/%m/%Y') if contract.end_date else 'N/A' }}</td>
+                            <td>
+                                {% if contract.end_date %}
+                                {% set dias_restantes = (contract.end_date - datetime.now().date()).days %}
+                                {% if dias_restantes > 0 %}
+                                    {% if dias_restantes <= 30 %}
+                                    <span class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ dias_restantes }} dias
+                                    </span>
+                                    {% else %}
+                                    <span class="text-success">{{ dias_restantes }} dias</span>
+                                    {% endif %}
+                                {% else %}
+                                <span class="text-danger">Vencido</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nenhum contrato encontrado</h5>
+                <p class="text-muted">Este cliente ainda não possui contratos cadastrados.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Resumo Financeiro -->
+    {% if report.contracts %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">💰 Resumo Financeiro</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Por Status</h6>
+                    <table class="table table-sm">
+                        {% set status_groups = report.contracts | groupby('status') %}
+                        {% for status, contracts in status_groups %}
+                        <tr>
+                            <td>{{ status.title() }}</td>
+                            <td>{{ contracts | list | length }} contrato(s)</td>
+                            <td>R$ {{ "{:,.2f}".format(contracts | sum(attribute='value')) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Projeções</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <td>Mensalidade Média</td>
+                            <td><strong>R$ {{ "{:,.2f}".format(report.stats.total_value / 12) }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Valor Anual Estimado</td>
+                            <td><strong>R$ {{ "{:,.2f}".format(report.stats.total_value) }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Taxa de Conversão</td>
+                            <td><strong>100%</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer do Relatório -->
+    <div class="text-center mt-5 text-muted">
+        <small>
+            Relatório gerado em {{ datetime.now().strftime('%d/%m/%Y %H:%M:%S') }}<br>
+            Sistema de Gestão de Contratos v1.0.0
+        </small>
+    </div>
+</div>
+
+<script>
+function exportPDF() {
+    // Simulação de exportação PDF
+    alert('📄 Funcionalidade de exportação PDF em desenvolvimento!\n\nEm produção, isto geraria um arquivo PDF com este relatório completo.');
+}
+
+// Auto-imprimir se parâmetro ?print=true na URL
+if (window.location.search.includes('print=true')) {
+    setTimeout(() => {
+        window.print();
+    }, 1000);
+}
+</script>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12px !important;
+    }
+    
+    .table {
+        font-size: 11px !important;
+    }
+}
+</style>
+{% endblock %}

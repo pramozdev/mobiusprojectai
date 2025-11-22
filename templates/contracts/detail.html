@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}{{ contract.title }} - Detalhes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.contracts') }}">Contratos</a></li>
+                    <li class="breadcrumb-item active">{{ contract.title }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">{{ contract.title }}</h1>
+            <p class="text-muted mb-0">Detalhes completos do contrato</p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.edit_contract', contract_id=contract.id) }}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+            <a href="{{ url_for('web.contracts') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Alert -->
+    {% if contract.status == 'ativo' %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <div>
+            <strong>Contrato Ativo</strong> - Este contrato está em vigor e funcionando normalmente.
+        </div>
+    </div>
+    {% elif contract.status == 'suspenso' %}
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <div>
+            <strong>Contrato Suspenso</strong> - Este contrato está temporariamente suspenso.
+        </div>
+    </div>
+    {% elif contract.status == 'concluído' %}
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+        <i class="fas fa-check-double me-2"></i>
+        <div>
+            <strong>Contrato Concluído</strong> - Este contrato foi finalizado com sucesso.
+        </div>
+    </div>
+    {% elif contract.status == 'cancelado' %}
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="fas fa-times-circle me-2"></i>
+        <div>
+            <strong>Contrato Cancelado</strong> - Este contrato foi cancelado.
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Informações Principais -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">📋 Informações do Contrato</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Título</label>
+                            <h6>{{ contract.title }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Número</label>
+                            <h6>{{ contract.contract_number or 'Não definido' }}</h6>
+                        </div>
+                    </div>
+
+                    {% if contract.description %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Descrição</label>
+                        <p>{{ contract.description }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Tipo</label>
+                            <h6>
+                                {% if contract.contract_type == 'serviço' %}
+                                <i class="fas fa-cogs me-2"></i>Serviço
+                                {% elif contract.contract_type == 'consultoria' %}
+                                <i class="fas fa-lightbulb me-2"></i>Consultoria
+                                {% elif contract.contract_type == 'produto' %}
+                                <i class="fas fa-box me-2"></i>Produto
+                                {% else %}
+                                {{ contract.contract_type }}
+                                {% endif %}
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Status</label>
+                            <div>
+                                {% if contract.status == 'ativo' %}
+                                <span class="badge bg-success fs-6">Ativo</span>
+                                {% elif contract.status == 'rascunho' %}
+                                <span class="badge bg-secondary fs-6">Rascunho</span>
+                                {% elif contract.status == 'suspenso' %}
+                                <span class="badge bg-warning fs-6">Suspenso</span>
+                                {% elif contract.status == 'concluído' %}
+                                <span class="badge bg-info fs-6">Concluído</span>
+                                {% elif contract.status == 'cancelado' %}
+                                <span class="badge bg-danger fs-6">Cancelado</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark fs-6">{{ contract.status }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Valor</label>
+                            <h4 class="text-success">R$ {{ "{:,.2f}".format(contract.value) }}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Moeda</label>
+                            <h6>{{ contract.currency or 'BRL' }}</h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Início</label>
+                            <h6>{{ contract.start_date.strftime('%d/%m/%Y') if contract.start_date else 'Não definido' }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Término</label>
+                            <h6>{{ contract.end_date.strftime('%d/%m/%Y') if contract.end_date else 'Não definido' }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Assinatura</label>
+                            <h6>{{ contract.signature_date.strftime('%d/%m/%Y') if contract.signature_date else 'Não assinado' }}</h6>
+                        </div>
+                    </div>
+
+                    {% if contract.payment_method or contract.payment_frequency %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Método Pagamento</label>
+                            <h6>
+                                {% if contract.payment_method == 'transferência' %}
+                                <i class="fas fa-exchange-alt me-2"></i>Transferência
+                                {% elif contract.payment_method == 'boleto' %}
+                                <i class="fas fa-barcode me-2"></i>Boleto
+                                {% elif contract.payment_method == 'cartão' %}
+                                <i class="fas fa-credit-card me-2"></i>Cartão
+                                {% elif contract.payment_method == 'pix' %}
+                                <i class="fas fa-qrcode me-2"></i>Pix
+                                {% else %}
+                                {{ contract.payment_method }}
+                                {% endif %}
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Frequência</label>
+                            <h6>
+                                {% if contract.payment_frequency == 'mensal' %}
+                                Mensal
+                                {% elif contract.payment_frequency == 'trimestral' %}
+                                Trimestral
+                                {% elif contract.payment_frequency == 'semestral' %}
+                                Semestral
+                                {% elif contract.payment_frequency == 'anual' %}
+                                Anual
+                                {% else %}
+                                {{ contract.payment_frequency }}
+                                {% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if contract.auto_renew %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Renovação Automática</label>
+                            <h6><i class="fas fa-sync-alt me-2 text-success"></i>Sim</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Dias para Aviso</label>
+                            <h6>{{ contract.renewal_days or 30 }} dias</h6>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if contract.notes %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Observações</label>
+                        <div class="alert alert-light">
+                            {{ contract.notes }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Cliente -->
+            {% if contract.client %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">🏢 Cliente</h6>
+                </div>
+                <div class="card-body">
+                    <h6>{{ contract.client.name }}</h6>
+                    {% if contract.client.email %}
+                    <p class="text-muted mb-1">{{ contract.client.email }}</p>
+                    {% endif %}
+                    {% if contract.client.phone %}
+                    <p class="text-muted mb-0">{{ contract.client.phone }}</p>
+                    {% endif %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('web.client_detail', client_id=contract.client.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>Ver Cliente
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Status do Tempo -->
+            {% if contract.end_date %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">⏰ Status do Tempo</h6>
+                </div>
+                <div class="card-body">
+                    {% set dias_restantes = (contract.end_date - now().date()).days %}
+                    {% if dias_restantes > 0 %}
+                        {% if dias_restantes <= 30 %}
+                        <div class="text-center">
+                            <div class="text-warning mb-2">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            </div>
+                            <h5 class="text-warning">{{ dias_restantes }} dias</h5>
+                            <small class="text-muted">Para vencimento</small>
+                        </div>
+                        {% else %}
+                        <div class="text-center">
+                            <div class="text-success mb-2">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                            <h5 class="text-success">{{ dias_restantes }} dias</h5>
+                            <small class="text-muted">Para vencimento</small>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="text-center">
+                        <div class="text-danger mb-2">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                        </div>
+                        <h5 class="text-danger">Vencido</h5>
+                        <small class="text-muted">Há {{ abs(dias_restantes) }} dias</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Informações de Sistema -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">🔧 Informações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">Criado em</small><br>
+                        {{ contract.created_at.strftime('%d/%m/%Y %H:%M') if contract.created_at else 'N/A' }}
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Atualizado em</small><br>
+                        {{ contract.updated_at.strftime('%d/%m/%Y %H:%M') if contract.updated_at else 'N/A' }}
+                    </div>
+                    {% if contract.created_by %}
+                    <div class="mb-0">
+                        <small class="text-muted">Criado por</small><br>
+                        Usuário ID: {{ contract.created_by }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">⚡ Ações Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('web.edit_contract', contract_id=contract.id) }}" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Editar Contrato
+                        </a>
+                        {% if contract.end_date and (contract.end_date - now().date()).days <= 30 %}
+                        <button class="btn btn-outline-warning">
+                            <i class="fas fa-sync-alt me-2"></i>Renovar Contrato
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-outline-info">
+                            <i class="fas fa-file-pdf me-2"></i>Gerar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

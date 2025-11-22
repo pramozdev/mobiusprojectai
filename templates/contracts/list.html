@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Contratos - Sistema de Gestão{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">📋 Contratos</h1>
+            <p class="text-muted mb-0">Gerencie todos os seus contratos em um só lugar</p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.new_contract') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Contrato
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Buscar</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search }}" placeholder="Título ou número...">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Todos</option>
+                        <option value="ativo" {% if status == 'ativo' %}selected{% endif %}>Ativo</option>
+                        <option value="rascunho" {% if status == 'rascunho' %}selected{% endif %}>Rascunho</option>
+                        <option value="suspenso" {% if status == 'suspenso' %}selected{% endif %}>Suspenso</option>
+                        <option value="concluído" {% if status == 'concluído' %}selected{% endif %}>Concluído</option>
+                        <option value="cancelado" {% if status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <a href="{{ url_for('web.contracts') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Limpar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    {% if contracts %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ contracts.items | selectattr('status', 'equalto', 'ativo') | list | length }}</h4>
+                            <small>Ativos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ contracts.items | selectattr('status', 'equalto', 'suspenso') | list | length }}</h4>
+                            <small>Suspensos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ contracts.items | selectattr('status', 'equalto', 'concluído') | list | length }}</h4>
+                            <small>Concluídos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-double fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ contracts.total }}</h4>
+                            <small>Total</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-contract fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Contratos -->
+    {% if contracts and contracts.items %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Contrato</th>
+                            <th>Cliente</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Vencimento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contract in contracts.items %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>{{ contract.title }}</strong>
+                                    {% if contract.contract_number %}
+                                    <br><small class="text-muted">#{{ contract.contract_number }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if contract.client %}
+                                <div>
+                                    <strong>{{ contract.client.name }}</strong>
+                                    <br><small class="text-muted">{{ contract.client.email }}</small>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">Cliente não definido</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>R$ {{ "{:,.2f}".format(contract.value) }}</strong>
+                            </td>
+                            <td>
+                                {% if contract.status == 'ativo' %}
+                                <span class="badge bg-success">Ativo</span>
+                                {% elif contract.status == 'rascunho' %}
+                                <span class="badge bg-secondary">Rascunho</span>
+                                {% elif contract.status == 'suspenso' %}
+                                <span class="badge bg-warning">Suspenso</span>
+                                {% elif contract.status == 'concluído' %}
+                                <span class="badge bg-info">Concluído</span>
+                                {% elif contract.status == 'cancelado' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ contract.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if contract.end_date %}
+                                {% set dias_restantes = (contract.end_date - now().date()).days %}
+                                {% if dias_restantes > 0 %}
+                                    {% if dias_restantes <= 30 %}
+                                    <span class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ dias_restantes }} dias
+                                    </span>
+                                    {% else %}
+                                    <span class="text-success">{{ dias_restantes }} dias</span>
+                                    {% endif %}
+                                {% else %}
+                                <span class="text-danger">Vencido</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="text-muted">Não definido</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('web.contract_detail', contract_id=contract.id) }}" 
+                                       class="btn btn-outline-primary" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('web.edit_contract', contract_id=contract.id) }}" 
+                                       class="btn btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if contracts.pages > 1 %}
+            <nav aria-label="Paginação">
+                <ul class="pagination justify-content-center">
+                    {% if contracts.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.contracts', page=contracts.prev_num, search=search, status=status) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in contracts.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != contracts.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('web.contracts', page=page_num, search=search, status=status) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if contracts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.contracts', page=contracts.next_num, search=search, status=status) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Nenhum contrato encontrado -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-file-contract fa-4x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Nenhum contrato encontrado</h3>
+        <p class="text-muted">
+            {% if search or status %}
+            Tente ajustar os filtros ou 
+            <a href="{{ url_for('web.contracts') }}">limpar a busca</a>.
+            {% else %}
+            Comece criando seu primeiro contrato.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('web.new_contract') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Criar Primeiro Contrato
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

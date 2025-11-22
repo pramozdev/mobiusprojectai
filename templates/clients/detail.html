@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.name }} - Detalhes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.clients') }}">Clientes</a></li>
+                    <li class="breadcrumb-item active">{{ client.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">{{ client.name }}</h1>
+            <p class="text-muted mb-0">Detalhes completos do cliente</p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.edit_client', client_id=client.id) }}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+            <a href="{{ url_for('web.clients') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Alert -->
+    {% if client.is_active %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <div>
+            <strong>Cliente Ativo</strong> - Este cliente está operacional e pode receber novos contratos.
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <div>
+            <strong>Cliente Inativo</strong> - Este cliente está temporariamente desativado.
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Informações Principais -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">🏢 Informações do Cliente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Nome/Razão Social</label>
+                            <h6>{{ client.name }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Documento</label>
+                            <h6>{{ client.document or 'Não informado' }}</h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Email</label>
+                            <h6>
+                                {% if client.email %}
+                                <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                                {% else %}
+                                Não informado
+                                {% endif %}
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Telefone</label>
+                            <h6>{{ client.phone or 'Não informado' }}</h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Endereço</label>
+                            <h6>{{ client.address or 'Não informado' }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted">Cidade</label>
+                            <h6>{{ client.city or 'Não informado' }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted">Estado</label>
+                            <h6>{{ client.state or 'Não informado' }}</h6>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">CEP</label>
+                            <h6>{{ client.postal_code or 'Não informado' }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">País</label>
+                            <h6>{{ client.country or 'Brasil' }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Status</label>
+                            <div>
+                                {% if client.is_active %}
+                                <span class="badge bg-success fs-6">Ativo</span>
+                                {% else %}
+                                <span class="badge bg-secondary fs-6">Inativo</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Informações de Sistema -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">🔧 Informações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">Criado em</small><br>
+                        {{ client.created_at.strftime('%d/%m/%Y %H:%M') if client.created_at else 'N/A' }}
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Atualizado em</small><br>
+                        {{ client.updated_at.strftime('%d/%m/%Y %H:%M') if client.updated_at else 'N/A' }}
+                    </div>
+                    {% if client.created_by %}
+                    <div class="mb-0">
+                        <small class="text-muted">Criado por</small><br>
+                        Usuário ID: {{ client.created_by }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">📊 Estatísticas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Total de Contratos</small><br>
+                        <h4 class="text-primary">{{ client_contracts | length }}</h4>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Contratos Ativos</small><br>
+                        <h4 class="text-success">{{ client_contracts | selectattr('status', 'equalto', 'ativo') | list | length }}</h4>
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted">Valor Total</small><br>
+                        <h4 class="text-success">R$ {{ "{:,.2f}".format(total_contract_value) }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">⚡ Ações Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('web.edit_client', client_id=client.id) }}" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Editar Cliente
+                        </a>
+                        <a href="{{ url_for('web.new_contract') }}?client_id={{ client.id }}" 
+                           class="btn btn-outline-success">
+                            <i class="fas fa-plus me-2"></i>Novo Contrato
+                        </a>
+                        <a href="{{ url_for('web.client_report_pt', client_id=client.id) }}" class="btn btn-outline-info">
+                            <i class="fas fa-file-pdf me-2"></i>Gerar Relatório
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contratos do Cliente -->
+    {% if client_contracts %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">📋 Contratos do Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Contrato</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Vencimento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contract in client_contracts %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>{{ contract.title }}</strong>
+                                    {% if contract.contract_number %}
+                                    <br><small class="text-muted">#{{ contract.contract_number }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <strong>R$ {{ "{:,.2f}".format(contract.value) }}</strong>
+                            </td>
+                            <td>
+                                {% if contract.status == 'ativo' %}
+                                <span class="badge bg-success">Ativo</span>
+                                {% elif contract.status == 'rascunho' %}
+                                <span class="badge bg-secondary">Rascunho</span>
+                                {% elif contract.status == 'suspenso' %}
+                                <span class="badge bg-warning">Suspenso</span>
+                                {% elif contract.status == 'concluído' %}
+                                <span class="badge bg-info">Concluído</span>
+                                {% elif contract.status == 'cancelado' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if contract.end_date %}
+                                {% set dias_restantes = (contract.end_date - now().date()).days %}
+                                {% if dias_restantes > 0 %}
+                                    {% if dias_restantes <= 30 %}
+                                    <span class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ dias_restantes }} dias
+                                    </span>
+                                    {% else %}
+                                    <span class="text-success">{{ dias_restantes }} dias</span>
+                                    {% endif %}
+                                {% else %}
+                                <span class="text-danger">Vencido</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="text-muted">Não definido</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('web.contract_detail', contract_id=contract.id) }}" 
+                                       class="btn btn-outline-primary" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('web.edit_contract', contract_id=contract.id) }}" 
+                                       class="btn btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - Sistema de Gestão{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">🏢 Clientes</h1>
+            <p class="text-muted mb-0">Gerencie todos os seus clientes em um só lugar</p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.new_client') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Cliente
+            </a>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ clients | selectattr('is_active') | list | length }}</h4>
+                            <small>Ativos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ clients | rejectattr('is_active') | list | length }}</h4>
+                            <small>Inativos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-times-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ clients | length }}</h4>
+                            <small>Total</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-building fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ contracts_count or 0 }}</h4>
+                            <small>Contratos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-file-contract fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Clientes -->
+    {% if clients %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Contato</th>
+                            <th>Localização</th>
+                            <th>Status</th>
+                            <th>Contratos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>{{ client.name }}</strong>
+                                    {% if client.document %}
+                                    <br><small class="text-muted">CNPJ: {{ client.document }}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    {% if client.email %}
+                                    <div><i class="fas fa-envelope me-1 text-muted"></i>{{ client.email }}</div>
+                                    {% endif %}
+                                    {% if client.phone %}
+                                    <div><i class="fas fa-phone me-1 text-muted"></i>{{ client.phone }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if client.city and client.state %}
+                                <div>
+                                    <strong>{{ client.city }}</strong>
+                                    <br><small class="text-muted">{{ client.state }}</small>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">Não informado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if client.is_active %}
+                                <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set client_contracts = contracts_by_client.get(client.id, []) %}
+                                <div>
+                                    <strong>{{ client_contracts | length }}</strong>
+                                    {% if client_contracts %}
+                                    <br><small class="text-muted">
+                                        {{ client_contracts | selectattr('status', 'equalto', 'ativo') | list | length }} ativos
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('web.client_detail', client_id=client.id) }}" 
+                                       class="btn btn-outline-primary" title="Ver detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('web.edit_client', client_id=client.id) }}" 
+                                       class="btn btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Nenhum cliente encontrado -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-building fa-4x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Nenhum cliente encontrado</h3>
+        <p class="text-muted">
+            Comece criando seu primeiro cliente para começar a gerenciar contratos.
+        </p>
+        <a href="{{ url_for('web.new_client') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Criar Primeiro Cliente
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

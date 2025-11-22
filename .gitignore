@@ -35,6 +35,20 @@ Thumbs.db
 
 # Arquivos de log
 *.log
+app.log
+
+# Arquivos de teste e relatórios gerados
+test_*.xlsx
+test_*.pdf
+test_*.csv
+relatorio_*.xlsx
+relatorio_*.pdf
+relatorio_*.csv
+
+# Backup
+backup_*/
+*.bak
+*.backup
 
 # Flask
 instance/
