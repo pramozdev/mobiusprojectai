@@ -55,6 +55,8 @@ class Client(db.Model):
     @property
     def total_contract_value(self):
         """Retorna valor total de todos os contratos"""
+        # Import local para evitar circular import
+        from app.models.contract import Contract
         result = db.session.query(db.func.sum(Contract.value)).filter(
             Contract.client_id == self.id
         ).scalar()

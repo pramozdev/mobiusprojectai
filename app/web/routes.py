@@ -9,101 +9,27 @@ from app.utils.imports import (
 from app import db
 from app.models import Client, Contract, User, Notification
 from app.web import bp
+from app.services.dashboard_service import DashboardService
+from app.utils.decorators import handle_route_errors
 
 @bp.route('/')
+@handle_route_errors('index.html')
 def index():
     """Página principal"""
-    try:
-        # Estatísticas básicas
-        total_clients = Client.query.count()
-        total_contracts = Contract.query.count()
-        active_contracts = Contract.query.filter_by(status='ativo').count()
-        total_value = db.session.query(db.func.sum(Contract.value)).scalar() or 0
-        
-        # Contratos vencendo em breve
-        expiring_contracts = Contract.query.filter(
-            Contract.end_date <= date.today() + timedelta(days=30),
-            Contract.end_date >= date.today(),
-            Contract.status == 'ativo'
-        ).count()
-        
-        stats = {
-            'total_clients': total_clients,
-            'total_contracts': total_contracts,
-            'active_contracts': active_contracts,
-            'total_value': float(total_value),
-            'expiring_contracts': expiring_contracts
-        }
-        
-        return render_template('index.html', stats=stats)
-        
-    except Exception as e:
-        current_app.logger.error(f"Erro na página inicial: {str(e)}")
-        flash('Erro ao carregar a página inicial', 'error')
-        return render_template('index.html', stats={})
+    stats = DashboardService.get_basic_stats()
+    return render_template('index.html', stats=stats)
 
 @bp.route('/dashboard')
+@handle_route_errors('dashboard.html')
 def dashboard():
     """Dashboard principal"""
-    try:
-        # Métricas
-        total_contracts = Contract.query.count()
-        active_contracts = Contract.query.filter_by(status='ativo').count()
-        total_value = db.session.query(db.func.sum(Contract.value)).scalar() or 0
-        
-        # Top clientes
-        top_clients = db.session.query(
-            Client.name,
-            db.func.sum(Contract.value).label('total_value')
-        ).join(Contract).group_by(Client.id, Client.name).order_by(
-            db.func.sum(Contract.value).desc()
-        ).limit(10).all()
-        
-        # Contratos recentes
-        recent_contracts = Contract.query.order_by(
-            Contract.created_at.desc()
-        ).limit(5).all()
-        
-        # Vencimentos próximos
-        upcoming_expirations = Contract.query.filter(
-            Contract.end_date <= date.today() + timedelta(days=30),
-            Contract.end_date >= date.today(),
-            Contract.status == 'ativo'
-        ).order_by(Contract.end_date.asc()).limit(5).all()
-        
-        # Distribuição por status
-        status_data = db.session.query(
-            Contract.status,
-            db.func.count(Contract.id).label('count')
-        ).group_by(Contract.status).all()
-        
-        dashboard_data = {
-            'metricas': {
-                'total_contratos': total_contracts,
-                'contratos_ativos': active_contracts,
-                'valor_total': float(total_value),
-                'taxa_renovacao': 85.0,  # Simulado
-                'crescimento_mensal': 5.2,  # Simulado
-                'inadimplencia': 0.0  # Simulado
-            },
-            'top_clientes': [
-                {'cliente': name, 'valor': float(value)} 
-                for name, value in top_clients
-            ],
-            'distribuicao_status': [
-                {'status': status, 'quantidade': count, 'cor': get_status_color(status)}
-                for status, count in status_data
-            ],
-            'contratos_recentes': [contract.to_dict(include_client=True) for contract in recent_contracts],
-            'vencimentos_proximos': [contract.to_dict(include_client=True) for contract in upcoming_expirations]
-        }
-        
-        return render_template('dashboard.html', data=dashboard_data)
-        
-    except Exception as e:
-        current_app.logger.error(f"Erro no dashboard: {str(e)}")
-        flash('Erro ao carregar o dashboard', 'error')
-        return render_template('dashboard.html', data={})
+    dashboard_data = DashboardService.get_full_dashboard_data()
+    
+    # Add recent contracts separately (specific to web dashboard)
+    recent_contracts = DashboardService.get_recent_contracts(5)
+    dashboard_data['contratos_recentes'] = [contract.to_dict(include_client=True) for contract in recent_contracts]
+    
+    return render_template('dashboard.html', data=dashboard_data)
 
 @bp.route('/clients')
 def clients():
@@ -494,45 +420,8 @@ def analytics():
         # Importar serviço de IA
         from app.services.ai_analytics import AIAnalyticsService
         
-        # Dados para analytics
-        total_contracts = Contract.query.count()
-        active_contracts = Contract.query.filter_by(status='ativo').count()
-        total_clients = Client.query.count()
-        
-        # Valor total dos contratos
-        total_value = db.session.query(db.func.sum(Contract.value)).scalar() or 0
-        
-        # Contratos por mês (últimos 6 meses)
-        contracts_by_month = []
-        for i in range(6):
-            month_start = datetime.now().replace(day=1) - timedelta(days=i*30)
-            month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
-            
-            count = Contract.query.filter(
-                Contract.created_at >= month_start,
-                Contract.created_at <= month_end
-            ).count()
-            
-            contracts_by_month.append({
-                'month': month_start.strftime('%b'),
-                'count': count
-            })
-        
-        contracts_by_month.reverse()
-        
-        # Distribuição por status
-        status_data = db.session.query(
-            Contract.status,
-            db.func.count(Contract.id).label('count')
-        ).group_by(Contract.status).all()
-        
-        # Top clientes por valor
-        top_clients = db.session.query(
-            Client.name,
-            db.func.sum(Contract.value).label('total_value')
-        ).join(Contract).group_by(Client.id, Client.name).order_by(
-            db.func.sum(Contract.value).desc()
-        ).limit(5).all()
+        # Use optimized dashboard service for basic data
+        analytics_data = DashboardService.get_analytics_data()
         
         # IA Service - Gerar recomendações e análises
         ai_service = AIAnalyticsService()
@@ -540,34 +429,14 @@ def analytics():
         risk_contracts = ai_service.generate_risk_analysis()
         
         # Previsões simuladas da IA (mantidas para compatibilidade)
-        ai_predictions = {
+        analytics_data['ai_predictions'] = {
             'renewal_rate': 85.5,
             'churn_risk': 12.3,
             'upsell_opportunities': len([r for r in ai_recommendations if r['type'] == 'upsell']),
             'revenue_growth': 18.7,
             'risk_contracts': risk_contracts
         }
-        
-        analytics_data = {
-            'metrics': {
-                'total_contracts': total_contracts,
-                'active_contracts': active_contracts,
-                'total_clients': total_clients,
-                'total_value': float(total_value),
-                'avg_contract_value': float(total_value / total_contracts) if total_contracts > 0 else 0
-            },
-            'contracts_by_month': contracts_by_month,
-            'status_distribution': [
-                {'status': status, 'count': count, 'percentage': (count / total_contracts * 100) if total_contracts > 0 else 0}
-                for status, count in status_data
-            ],
-            'top_clients': [
-                {'name': name, 'value': float(value)}
-                for name, value in top_clients
-            ],
-            'ai_predictions': ai_predictions,
-            'ai_recommendations': ai_recommendations
-        }
+        analytics_data['ai_recommendations'] = ai_recommendations
         
         return render_template('analytics/index.html', data=analytics_data)
         

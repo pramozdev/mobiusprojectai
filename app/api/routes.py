@@ -8,6 +8,8 @@ from app.utils.imports import (
 from app import db
 from app.models import Client, Contract, User, Notification
 from app.api import bp
+from app.services.dashboard_service import DashboardService
+from app.utils.decorators import handle_route_errors, validate_json
 
 # Error handlers
 @bp.errorhandler(404)
@@ -29,94 +31,51 @@ def internal_error(error):
 
 # Dashboard endpoints
 @bp.route('/dashboard/data', methods=['GET'])
+@handle_route_errors(json_response=True)
 def get_dashboard_data():
     """Retorna dados completos do dashboard"""
-    try:
-        # Métricas básicas
-        total_contracts = Contract.query.count()
-        active_contracts = Contract.query.filter_by(status='ativo').count()
-        total_value = db.session.query(db.func.sum(Contract.value)).scalar() or 0
-        renewal_rate = calculate_renewal_rate()
-        
-        # Top clientes
-        top_clients = db.session.query(
-            Client.name,
-            db.func.sum(Contract.value).label('total_value')
-        ).join(Contract).group_by(Client.id, Client.name).order_by(
-            db.func.sum(Contract.value).desc()
-        ).limit(5).all()
-        
-        # Distribuição por status
-        status_distribution = db.session.query(
-            Contract.status,
-            db.func.count(Contract.id).label('count')
-        ).group_by(Contract.status).all()
-        
+    # Use optimized dashboard service
+    data = DashboardService.get_full_dashboard_data()
+    
+    # Add additional API-specific data
+    data.update({
         # Timeline de vencimentos
-        upcoming_expirations = get_upcoming_expirations()
-        
+        'timeline_vencimentos': get_upcoming_expirations(),
         # Valor por setor (simulado - poderia vir de campo no modelo)
-        value_by_sector = [
+        'valor_por_setor': [
             {'setor': 'Tecnologia', 'valor': 800000, 'contratos': 45, 'crescimento': 12.5},
             {'setor': 'Consultoria', 'valor': 450000, 'contratos': 30, 'crescimento': 8.3},
             {'setor': 'Varejo', 'valor': 250000, 'contratos': 25, 'crescimento': -2.1}
-        ]
-        
+        ],
         # Insights de IA (simulados)
-        ai_insights = {
+        'ai_insights': {
             'alertas': [
-                {'mensagem': f'{active_contracts} contratos ativos no sistema', 'tipo': 'warning'},
-                {'mensagem': f'Valor total em contratos: R$ {total_value:,.2f}', 'tipo': 'info'}
+                {'mensagem': f"{data['metricas']['contratos_ativos']} contratos ativos no sistema", 'tipo': 'warning'},
+                {'mensagem': f"Valor total em contratos: R$ {data['metricas']['valor_total']:,.2f}", 'tipo': 'info'}
             ],
-            'analise_metricas': f'O sistema possui {total_contracts} contratos cadastrados.',
+            'analise_metricas': f"O sistema possui {data['metricas']['total_contratos']} contratos cadastrados.",
             'score_risco': {'nivel': 'Moderado', 'pontuacao': 75},
             'tendencias': 'Métricas baseadas em dados reais do banco de dados.'
-        }
-        
+        },
         # Indicadores de mercado (simulados)
-        market_indicators = {
+        'indicadores_mercado': {
             'dolar': {'valor': 5.25, 'variacao': 0.5, 'tendencia': 'alta'},
             'ibovespa': {'valor': 120000, 'variacao': 2.1, 'tendencia': 'alta'},
             'selic': {'valor': 13.25, 'variacao': 0, 'tendencia': 'estavel'}
-        }
-        
-        data = {
-            'metricas': {
-                'total_contratos': total_contracts,
-                'contratos_ativos': active_contracts,
-                'valor_total': float(total_value),
-                'taxa_renovacao': renewal_rate,
-                'crescimento_mensal': 5.2,
-                'inadimplencia': 0.0
-            },
-            'top_clientes': [
-                {'cliente': name, 'valor': float(value)} 
-                for name, value in top_clients
-            ],
-            'distribuicao_status': [
-                {'status': status, 'quantidade': count, 'cor': get_status_color(status)}
-                for status, count in status_distribution
-            ],
-            'timeline_vencimentos': upcoming_expirations,
-            'valor_por_setor': value_by_sector,
-            'ai_insights': ai_insights,
-            'indicadores_mercado': market_indicators,
-            'comparacao_setores': value_by_sector,
-            'valor_por_regiao': [
-                {'regiao': 'São Paulo', 'valor': 900000},
-                {'regiao': 'Rio de Janeiro', 'valor': 400000},
-                {'regiao': 'Minas Gerais', 'valor': 200000}
-            ]
-        }
-        
-        return jsonify(data)
-        
-    except Exception as e:
-        current_app.logger.error(f"Erro ao carregar dashboard: {str(e)}")
-        return jsonify({
-            'error': 'Internal Error',
-            'message': 'Erro ao carregar dados do dashboard'
-        }), 500
+        },
+        'comparacao_setores': [
+            {'setor': 'Tecnologia', 'valor': 800000, 'contratos': 45, 'crescimento': 12.5},
+            {'setor': 'Consultoria', 'valor': 450000, 'contratos': 30, 'crescimento': 8.3},
+            {'setor': 'Varejo', 'valor': 250000, 'contratos': 25, 'crescimento': -2.1}
+        ],
+        'valor_por_regiao': [
+            {'regiao': 'São Paulo', 'valor': 900000},
+            {'regiao': 'Rio de Janeiro', 'valor': 400000},
+            {'regiao': 'Minas Gerais', 'valor': 200000}
+        ]
+    })
+    
+    return jsonify(data)
 
 # Client endpoints
 @bp.route('/clients', methods=['GET'])
@@ -327,44 +286,34 @@ def get_contracts():
 
 # Funções auxiliares
 def calculate_renewal_rate():
-    """Calcula taxa de renovação (simulado)"""
-    total = Contract.query.count()
-    if total == 0:
-        return 0.0
-    
-    renewed = Contract.query.filter_by(auto_renew=True).count()
-    return (renewed / total) * 100
+    """Calcula taxa de renovação (otimizado)"""
+    # Use dashboard service for consistent data
+    metrics = DashboardService.get_dashboard_metrics()
+    return metrics['taxa_renovacao']
 
 def get_upcoming_expirations():
-    """Retorna vencimentos próximos"""
+    """Retorna vencimentos próximos (otimizado)"""
     today = date.today()
     dates = []
     
+    # Use dashboard service for consistent data
     for i in range(3):
         future_date = today + timedelta(days=30 * (i + 1))
-        expiring_contracts = Contract.query.filter(
-            Contract.end_date <= future_date,
-            Contract.end_date >= today,
-            Contract.status == 'ativo'
-        ).all()
+        expiring_contracts = DashboardService.get_upcoming_expirations(days=30*(i+1), limit=50)
         
-        total_value = sum(contract.value for contract in expiring_contracts)
+        # Filter for specific date range
+        filtered_contracts = [
+            contract for contract in expiring_contracts
+            if contract.end_date <= future_date and contract.end_date >= today
+        ]
+        
+        total_value = sum(contract.value for contract in filtered_contracts)
         
         dates.append({
             'data': future_date.strftime('%Y-%m-%d'),
-            'contratos': len(expiring_contracts),
+            'contratos': len(filtered_contracts),
             'valor': float(total_value)
         })
     
     return dates
 
-def get_status_color(status):
-    """Retorna cor para status do contrato"""
-    colors = {
-        'ativo': '#10b981',
-        'rascunho': '#6b7280',
-        'suspenso': '#f59e0b',
-        'concluído': '#3b82f6',
-        'cancelado': '#ef4444'
-    }
-    return colors.get(status, '#6b7280')

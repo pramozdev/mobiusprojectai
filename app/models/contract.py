@@ -175,7 +175,7 @@ class Contract(db.Model):
             'duration_days': self.duration_days,
             'days_until_expiration': self.days_until_expiration,
             'is_expired': self.is_expired,
-            'is_expiring_soon': self.is_expiring_soon(),
+            'is_expiring_soon': self.is_expiring_soon,
             'monthly_value': self.monthly_value
         }
         

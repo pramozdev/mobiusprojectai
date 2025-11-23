@@ -1,6 +1,6 @@
 from app.utils.imports import (
     os, logging, time, json, Optional, List, Dict, Any, functools,
-    load_dotenv, OpenAI, RateLimitError, APIError, AuthenticationError, OPENAI_AVAILABLE
+    load_dotenv, OpenAI, RateLimitError, APIError, AuthenticationError
 )
 
 # Configuração de logging
@@ -25,7 +25,7 @@ cache = {}
 def retry_on_error(max_retries=3, delay=1.0):
     """Decorator para retry automático em caso de erro de API"""
     def decorator(func):
-        @wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             last_error = None
             for attempt in range(max_retries):
