@@ -56,19 +56,19 @@ function criarMetricas(metricas) {
             <div class="metric-value">${Formatters.currency(metricas.valor_total)}</div>
             <div class="metric-change ${metricas.crescimento_mensal >= 0 ? 'positive' : 'negative'}">
                 <span>${metricas.crescimento_mensal >= 0 ? '↗' : '↘'}</span> 
-                ${Math.abs(metricas.crescimento_mensal)}% este mês
+                ${Formatters.percent(Math.abs(metricas.crescimento_mensal))} este mês
             </div>
         </div>
         <div class="metric-card">
             <div class="metric-label">Taxa de Renovação</div>
-            <div class="metric-value">${metricas.taxa_renovacao}%</div>
+            <div class="metric-value">${Formatters.percent(metricas.taxa_renovacao)}</div>
             <div class="metric-change positive">
                 <span>↗</span> Acima da média
             </div>
         </div>
         <div class="metric-card">
             <div class="metric-label">Inadimplência</div>
-            <div class="metric-value">${metricas.inadimplencia}%</div>
+            <div class="metric-value">${Formatters.percent(metricas.inadimplencia)}</div>
             <div class="metric-change ${metricas.inadimplencia < 5 ? 'positive' : 'negative'}">
                 <span>${metricas.inadimplencia < 5 ? '↘' : '↗'}</span> 
                 ${metricas.inadimplencia < 5 ? 'Baixa' : 'Atenção'}
@@ -94,7 +94,7 @@ function criarIndicadores(indicadores) {
         } else if (key === 'ibovespa') {
             valorFormatado = Formatters.number(data.valor);
         } else {
-            valorFormatado = `${data.valor}%`;
+            valorFormatado = `${Formatters.percent(data.valor)}`;
         }
 
         return `
@@ -103,7 +103,7 @@ function criarIndicadores(indicadores) {
                 <div class="indicator-value">${valorFormatado}</div>
                 <div class="indicator-change ${colorClass}">
                     <span class="trend-icon">${icon}</span>
-                    ${isPositive ? '+' : ''}${data.variacao}%
+                    ${isPositive ? '+' : ''}${Formatters.percent(data.variacao)}
                 </div>
             </div>
         `;
@@ -418,15 +418,15 @@ function criarTabelaSetores(dados) {
             <td><strong>${d.setor}</strong></td>
             <td>
                 <span class="metric-change ${d.crescimento >= 0 ? 'positive' : 'negative'}">
-                    ${d.crescimento >= 0 ? '↗' : '↘'} ${Math.abs(d.crescimento)}%
+                    ${d.crescimento >= 0 ? '↗' : '↘'} ${Formatters.percent(Math.abs(d.crescimento))}
                 </span>
             </td>
             <td>
                 <span class="metric-change ${d.inadimplencia < 5 ? 'positive' : 'negative'}">
-                    ${d.inadimplencia}%
+                    ${Formatters.percent(d.inadimplencia)}
                 </span>
             </td>
-            <td>${d.renovacao}%</td>
+            <td>${Formatters.percent(d.renovacao)}</td>
             <td>
                 <span class="badge ${
                     d.crescimento >= 10 ? 'badge-success' : 
@@ -623,21 +623,21 @@ function criarScoreRisco(scoreData) {
                 <div class="factor">
                     <span class="factor-label">Inadimplência</span>
                     <div class="factor-bar">
-                        <div class="factor-fill" style="width: ${scoreData.fatores.inadimplencia}%"></div>
+                        <div class="factor-fill" style="width: ${Formatters.percent(scoreData.fatores.inadimplencia)}"></div>
                     </div>
                     <span class="factor-value">${scoreData.fatores.inadimplencia}</span>
                 </div>
                 <div class="factor">
                     <span class="factor-label">Renovação</span>
                     <div class="factor-bar">
-                        <div class="factor-fill" style="width: ${scoreData.fatores.renovacao}%"></div>
+                        <div class="factor-fill" style="width: ${Formatters.percent(scoreData.fatores.renovacao)}"></div>
                     </div>
                     <span class="factor-value">${scoreData.fatores.renovacao}</span>
                 </div>
                 <div class="factor">
                     <span class="factor-label">Crescimento</span>
                     <div class="factor-bar">
-                        <div class="factor-fill" style="width: ${scoreData.fatores.crescimento}%"></div>
+                        <div class="factor-fill" style="width: ${Formatters.percent(scoreData.fatores.crescimento)}"></div>
                     </div>
                     <span class="factor-value">${scoreData.fatores.crescimento}</span>
                 </div>

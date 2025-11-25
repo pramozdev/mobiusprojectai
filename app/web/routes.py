@@ -223,7 +223,7 @@ def contract_detail(contract_id):
     """Detalhes do contrato"""
     try:
         contract = Contract.query.get_or_404(contract_id)
-        return render_template('contracts/detail.html', contract=contract)
+        return render_template('contracts/detail.html', contract=contract, now=datetime.now, abs=abs)
         
     except Exception as e:
         current_app.logger.error(f"Erro ao detalhar contrato {contract_id}: {str(e)}")
@@ -300,7 +300,7 @@ def edit_contract(contract_id):
     
     # Carregar clientes para o select
     clients = Client.query.filter_by(is_active=True).all()
-    return render_template('contracts/form.html', contract=contract, clients=clients)
+    return render_template('contracts/form.html', contract=contract, clients=clients, now=datetime.now)
 
 @bp.route('/contracts/new', methods=['GET', 'POST'])
 def new_contract():

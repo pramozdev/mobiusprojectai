@@ -53,7 +53,8 @@ def add_performance_indexes():
         for index_sql in all_indexes:
             try:
                 from app import db
-                db.session.execute(index_sql)
+                from sqlalchemy import text
+                db.session.execute(text(index_sql))
                 print(f"✓ Criado: {index_sql}")
             except Exception as e:
                 print(f"✗ Erro ao criar índice: {e}")

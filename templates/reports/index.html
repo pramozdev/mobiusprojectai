@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Relatórios - Sistema de Gestão{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Início</a></li>
+                    <li class="breadcrumb-item active">Relatórios</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">📊 Relatórios</h1>
+            <p class="text-muted mb-0">Gere relatórios detalhados do sistema</p>
+        </div>
+        <div>
+            <a href="{{ url_for('web.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Tipos de Relatórios -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-primary h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">📋 Relatórios de Clientes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gere relatórios detalhados por cliente, incluindo contratos e valores.</p>
+                    
+                    <div class="mb-3">
+                        <label for="clientSelect" class="form-label">Selecione o Cliente</label>
+                        <select class="form-select" id="clientSelect">
+                            <option value="">Carregando clientes...</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateClientReport()">
+                        <i class="fas fa-file-pdf me-2"></i>Gerar Relatório do Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-success h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">📈 Relatórios de Contratos</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Relatórios completos sobre contratos, status e vencimentos.</p>
+                    
+                    <div class="mb-3">
+                        <label for="contractPeriod" class="form-label">Período</label>
+                        <select class="form-select" id="contractPeriod">
+                            <option value="current">Mês Atual</option>
+                            <option value="quarter">Trimestre</option>
+                            <option value="year">Ano</option>
+                            <option value="all">Todos</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="generateContractReport()">
+                        <i class="fas fa-file-excel me-2"></i>Gerar Relatório de Contratos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-info h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">💰 Relatórios Financeiros</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Análise financeira completa com receitas e projeções.</p>
+                    
+                    <div class="mb-3">
+                        <label for="financialType" class="form-label">Tipo</label>
+                        <select class="form-select" id="financialType">
+                            <option value="revenue">Receitas</option>
+                            <option value="projection">Projeções</option>
+                            <option value="comparison">Comparativo</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-info" onclick="generateFinancialReport()">
+                        <i class="fas fa-chart-line me-2"></i>Gerar Relatório Financeiro
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-warning h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">⚠️ Relatórios de Risco</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Identificação de contratos em risco e análise de churn.</p>
+                    
+                    <div class="mb-3">
+                        <label for="riskLevel" class="form-label">Nível de Risco</label>
+                        <select class="form-select" id="riskLevel">
+                            <option value="all">Todos</option>
+                            <option value="high">Alto</option>
+                            <option value="medium">Médio</option>
+                            <option value="low">Baixo</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-warning" onclick="generateRiskReport()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Gerar Relatório de Risco
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Relatórios Recentes -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">📁 Relatórios Gerados Recentemente</h5>
+        </div>
+        <div class="card-body">
+            <div id="recentReports" class="text-center text-muted">
+                <i class="fas fa-file-alt fa-3x mb-3"></i>
+                <p>Nenhum relatório gerado recentemente</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Carregar clientes para seleção
+document.addEventListener('DOMContentLoaded', function() {
+    loadClients();
+});
+
+function loadClients() {
+    fetch('/api/clients')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('clientSelect');
+            select.innerHTML = '<option value="">Selecione um cliente...</option>';
+            
+            data.clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = `${client.name} (${client.document || 'Sem CPF/CNPJ'})`;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar clientes:', error);
+            document.getElementById('clientSelect').innerHTML = '<option value="">Erro ao carregar clientes</option>';
+        });
+}
+
+function generateClientReport() {
+    const clientId = document.getElementById('clientSelect').value;
+    if (!clientId) {
+        alert('Por favor, selecione um cliente');
+        return;
+    }
+    
+    window.location.href = `/reports/clients/${clientId}`;
+}
+
+function generateContractReport() {
+    const period = document.getElementById('contractPeriod').value;
+    alert(`Relatório de contratos para o período "${period}" será gerado em breve.\n\nFuncionalidade em desenvolvimento.`);
+}
+
+function generateFinancialReport() {
+    const type = document.getElementById('financialType').value;
+    alert(`Relatório financeiro do tipo "${type}" será gerado em breve.\n\nFuncionalidade em desenvolvimento.`);
+}
+
+function generateRiskReport() {
+    const level = document.getElementById('riskLevel').value;
+    alert(`Relatório de risco nível "${level}" será gerado em breve.\n\nFuncionalidade em desenvolvimento.`);
+}
+</script>
+{% endblock %}

@@ -408,7 +408,7 @@
                 document.getElementById('totalValue').textContent = data.metricas?.valor_total ? 
                     `R$ ${(data.metricas.valor_total / 1000).toFixed(0)}K` : '-';
                 document.getElementById('renewalRate').textContent = data.metricas?.taxa_renovacao ? 
-                    `${data.metricas.taxa_renovacao}%` : '-';
+                    `${(data.metricas.taxa_renovacao).toFixed(2)}%` : '-';
 
                 successBox.style.display = 'block';
                 setTimeout(() => {
@@ -431,15 +431,15 @@
 
         // Ações rápidas
         function quickAddContract() {
-            window.location.href = '/contratos/novo';
+            window.location.href = '/contracts/new';
         }
 
         function quickAddClient() {
-            window.location.href = '/clientes/novo';
+            window.location.href = '/clients/new';
         }
 
         function generateReport() {
-            window.location.href = '/relatorios';
+            window.location.href = '/reports';
         }
 
         function checkSystemStatus() {

@@ -62,7 +62,7 @@
                     </div>
                     <div class="mt-2">
                         <small class="opacity-75">
-                            {{ "%.1f"|format((data.metrics.active_contracts / data.metrics.total_contracts * 100) if data.metrics.total_contracts > 0 else 0) }}% ativos
+                            {{ "%.2f"|format((data.metrics.active_contracts / data.metrics.total_contracts * 100) if data.metrics.total_contracts > 0 else 0) }}% ativos
                         </small>
                     </div>
                 </div>
@@ -151,13 +151,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="text-center mb-3">
-                                <div class="display-4 text-success">{{ "%.1f"|format(data.ai_predictions.renewal_rate) }}%</div>
+                                <div class="display-4 text-success">{{ "%.2f"|format(data.ai_predictions.renewal_rate) }}%</div>
                                 <small class="text-muted">Taxa de Renovação Prevista</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="text-center mb-3">
-                                <div class="display-4 text-warning">{{ "%.1f"|format(data.ai_predictions.churn_risk) }}%</div>
+                                <div class="display-4 text-warning">{{ "%.2f"|format(data.ai_predictions.churn_risk) }}%</div>
                                 <small class="text-muted">Risco de Churn</small>
                             </div>
                         </div>
@@ -171,7 +171,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="text-center mb-3">
-                                <div class="display-4 text-primary">{{ "%.1f"|format(data.ai_predictions.revenue_growth) }}%</div>
+                                <div class="display-4 text-primary">{{ "%.2f"|format(data.ai_predictions.revenue_growth) }}%</div>
                                 <small class="text-muted">Crescimento de Receita</small>
                             </div>
                         </div>
@@ -198,8 +198,7 @@
                             <div class="progress" style="width: 100px; height: 20px;">
                                 {% set risk_class = 'danger' if contract.risk_score > 70 else 'warning' if contract.risk_score > 40 else 'success' %}
                                 {% set risk_width = contract.risk_score ~ '%' %}
-                                <div class="progress-bar bg-{{ risk_class }}" 
-                                     style="width: {{ risk_width }}">
+                                <div class="progress-bar bg-{{ risk_class }}" style="width: {{ risk_width }}"></div>
                                 </div>
                             </div>
                             <small class="text-muted">{{ contract.risk_score }}% risco</small>
@@ -247,8 +246,8 @@
                                 {% set percentage = (client.value / data.metrics.total_value * 100) if data.metrics.total_value > 0 else 0 %}
                                 {% set progress_width = percentage ~ '%' %}
                                 <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-primary" style="width: {{ progress_width }}">
-                                        {{ "%.1f"|format(percentage) }}%
+                                    <div class="progress-bar bg-primary" style="width: {{ progress_width }};">
+                                        {{ "%.2f"|format(percentage) }}%
                                     </div>
                                 </div>
                             </td>
@@ -321,12 +320,12 @@
 
 <script>
 // Dados do template para JavaScript
-var analyticsContractsData = {{ data.contracts_by_month | tojson }};
-var analyticsStatusData = {{ data.status_distribution | tojson }};
+const analyticsContractsData = {{ data.contracts_by_month | tojson | safe }};
+const analyticsStatusData = {{ data.status_distribution | tojson | safe }};
 
 // Gráfico de Contratos por Mês
-var contractsCtx = document.getElementById('contractsChart').getContext('2d');
-var contractsChart = new Chart(contractsCtx, {
+const contractsCtx = document.getElementById('contractsChart').getContext('2d');
+const contractsChart = new Chart(contractsCtx, {
     type: 'line',
     data: {
         labels: analyticsContractsData.map(function(item) { return item.month; }),
@@ -355,8 +354,8 @@ var contractsChart = new Chart(contractsCtx, {
 });
 
 // Gráfico de Distribuição por Status
-var statusCtx = document.getElementById('statusChart').getContext('2d');
-var statusChart = new Chart(statusCtx, {
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
     type: 'doughnut',
     data: {
         labels: analyticsStatusData.map(function(item) { return item.status; }),
